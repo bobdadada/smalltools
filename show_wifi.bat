@@ -1,0 +1,8 @@
+@echo off
+
+chcp 65001
+
+set /p i="请输入WIFI名称："
+::输入WIFI名称(SSID)
+netsh wlan show profiles name=%i% key=clear
+pause >nul
