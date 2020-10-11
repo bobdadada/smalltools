@@ -2,7 +2,6 @@
 
 import time
 import random
-import logging
 import urllib
 import requests
 from bs4 import BeautifulSoup
@@ -17,53 +16,58 @@ def main(usrname, password, sleep=True, start_delaym=2, interval_delaym=1):
                   'Chrome/67.0.3396.79 Safari/537.36'
     }
 
+    if sleep:
+        time.sleep(random.random()*start_delaym*60)
+
+    # 登录
+    print('[+]学号登入')
+    params = {'username': usrname, 'password': password}
+    service = urllib.parse.quote_plus(start_url+'/caslogin')
+    r_login = requests.post('https://passport.ustc.edu.cn/login?service=%s'%(service),
+                    data=params, headers=headers)
     try:
-        if sleep:
-            time.sleep(random.random()*start_delaym*60)
-
-        # 登录
-        params = {'username': usrname, 'password': password}
-        service = urllib.parse.quote_plus(start_url+'/caslogin')
-        r_login = requests.post('https://passport.ustc.edu.cn/login?service=%s'%(service),
-                        data=params, headers=headers)
         r_login.raise_for_status()
-        print('[*]登录成功', flush=True)
-        html_login = BeautifulSoup(r_login.text, features='html.parser')
+    except:
+        raise Exception('[!]登录失败')
+    print('[-]登录成功')
+    html_login = BeautifulSoup(r_login.text, features='html.parser')
 
-        if sleep:
-            time.sleep(random.random()*interval_delaym*60)
+    if sleep:
+        time.sleep(random.random()*interval_delaym*60)
 
-        # 制造表单
-        data = {
-            '_token': html_login.findChild('input', {'name':'_token'}).attrs['value'],
-            'now_address': 1,  # 内地
-            'gps_now_address': '',
-            'now_province': 340000,  # 安徽省
-            'gps_province': '',
-            'now_city': 340100,  # 合肥市
-            'gps_city': '',
-            'now_detail': '',
-            'is_inschool': 2,  # 东区
-            'body_condition': 1,  # 正常
-            'body_condition_detail': '',
-            'now_status': 1,  # 正常在校园中
-            'now_status_detail': '',
-            'has_fever': 0,  # 无
-            'last_touch_sars': 0,  # 无
-            'last_touch_sars_date': '',
-            'last_touch_sars_detail': '',
-            'other_detail': ''
-        }
-        # 上报
-        r_report = requests.post(start_url+'/daliy_report', data,
-                                 cookies=r_login.cookies, headers=headers)
+    # 制造表单
+    data = {
+        '_token': html_login.findChild('input', {'name':'_token'}).attrs['value'],
+        'now_address': 1,  # 内地
+        'gps_now_address': '',
+        'now_province': 340000,  # 安徽省
+        'gps_province': '',
+        'now_city': 340100,  # 合肥市
+        'gps_city': '',
+        'now_detail': '',
+        'is_inschool': 2,  # 东区
+        'body_condition': 1,  # 正常
+        'body_condition_detail': '',
+        'now_status': 1,  # 正常在校园中
+        'now_status_detail': '',
+        'has_fever': 0,  # 无
+        'last_touch_sars': 0,  # 无
+        'last_touch_sars_date': '',
+        'last_touch_sars_detail': '',
+        'other_detail': ''
+    }
+    
+    # 上报
+    print('[+]健康上报')
+    r_report = requests.post(start_url+'/daliy_report', data,
+                             cookies=r_login.cookies, headers=headers)
+    try:
         r_report.raise_for_status()
-        print('[*]上报成功', flush=True)
-        exit(0)
+    except:
+        raise Exception('[!]上报失败')
+    print('[*]上报成功')
 
-    except Exception as e:
-        logging.exception(e)
-        exit(-1)
+    print('[*]完成每日健康上报！')
 
 if __name__ == '__main__':
     import argparse
@@ -76,5 +80,11 @@ if __name__ == '__main__':
     parser.add_argument('--idelay', nargs=1, type=int, default=1, help='中间延迟分钟数')
     args = parser.parse_args()
 
-    main(args.usrname, args.password, sleep=args.nosleep, start_delaym=args.sdelay, 
-        interval_delaym=args.idelay)
+    try:
+        main(args.usrname, args.password, sleep=args.nosleep, start_delaym=args.sdelay, 
+            interval_delaym=args.idelay)
+    except Exception as e:
+        print(e)
+        exit(-1)
+    
+    exit(0)
