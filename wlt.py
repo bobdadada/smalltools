@@ -8,7 +8,7 @@ import time
 def main(name, password):
     print('中科大网络通登录联网服务！')
     if (not isinstance(name, str)) or (not isinstance(password, str)):
-        raise Exception('[!]请输入正常的名称和密码')
+        raise Exception('[!]请输入正确的网络通用户名和密码')
 
     url = 'http://wlt.ustc.edu.cn/cgi-bin/ip'
 

@@ -8,6 +8,10 @@ from bs4 import BeautifulSoup
 
 def main(usrname, password, sleep=True, start_delaym=2, interval_delaym=1):
     print('每日健康上报！')
+
+    if (not isinstance(usrname, str)) or (not isinstance(usrname, str)):
+        raise Exception('[!]请输入正确的学号和密码')
+
     start_url = "https://weixine.ustc.edu.cn/2020"
 
     headers = {
