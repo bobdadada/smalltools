@@ -1,10 +1,14 @@
 #! python3
 
+import re
+from datetime import datetime
 import time
 import random
 import urllib
 import requests
 from bs4 import BeautifulSoup
+
+from regexp import date as date_reg
 
 def main(usrname, password, sleep=True, start_delaym=2, interval_delaym=1):
     print('每日健康上报！')
@@ -34,7 +38,19 @@ def main(usrname, password, sleep=True, start_delaym=2, interval_delaym=1):
     except:
         raise Exception('[!]登录失败')
     print('[-]登录成功')
+
     html_login = BeautifulSoup(r_login.text, features='html.parser')
+
+    try:
+        # 获取上次上报的时间
+        i = html_login.text.find('上次上报时间')
+        if i >= 0:
+            past_date = re.match('(.*)'+date_reg, html_login.text[i:]).group(2)
+            if datetime.now().date() == datetime.strptime(past_date, '%Y-%m-%d').date():
+                print('[*]今天已经做过每日健康上报!')
+                return
+    except:
+        pass
 
     if sleep:
         time.sleep(random.random()*interval_delaym*60)
