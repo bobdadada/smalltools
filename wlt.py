@@ -5,8 +5,18 @@ import requests
 import re
 import time
 
-def main(name, password):
+def main(name, password, force=False):
     print('中科大网络通登录联网服务！')
+
+    if not force:
+        try:
+            r = requests.get('http://www.baidu.com')
+            if len(r.text)>1000:
+                print('[*]已经可以连接外网！')
+                return
+        except:
+            pass
+
     if (not isinstance(name, str)) or (not isinstance(password, str)):
         raise Exception('[!]请输入正确的网络通用户名和密码')
 
