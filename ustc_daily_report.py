@@ -105,6 +105,6 @@ if __name__ == '__main__':
             interval_delaym=args.idelay)
     except Exception as e:
         print(e)
-        exit(-1)
+        raise
     
     exit(0)

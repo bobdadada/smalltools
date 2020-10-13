@@ -53,7 +53,7 @@ if __name__ == '__main__':
         main(arg.name, arg.password)
     except Exception as e:
         print(e)
-        exit(-1)
+        raise
 
     exit(0)
 

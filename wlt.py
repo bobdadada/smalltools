@@ -52,12 +52,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('中科大网络通登录联网服务')
     parser.add_argument('--name', type=str, help='账号名称')
     parser.add_argument('--password', type=str, help='账号密码')
+    parser.add_argument('-f', '--force', action='store_true', help='强制登陆所给账号')
     arg = parser.parse_args()
 
     try:
-        main(arg.name, arg.password)
+        main(arg.name, arg.password, force=arg.force)
     except Exception as e:
         print(e)
-        exit(-1)
+        raise
     
     exit(0)
