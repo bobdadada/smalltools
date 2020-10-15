@@ -1,5 +1,6 @@
 #! python3
 
+import sys
 import re
 from datetime import datetime
 import time
@@ -77,7 +78,7 @@ def main(usrname, password, sleep=True, start_delaym=2, interval_delaym=1, email
         'last_touch_sars_detail': '',
         'other_detail': ''
     }
-    
+
     # 上报
     print('[+]健康上报')
     r_report = requests.post(start_url+'/daliy_report', data,
@@ -93,7 +94,7 @@ def main(usrname, password, sleep=True, start_delaym=2, interval_delaym=1, email
     if isinstance(email_addr, str) and isinstance(email_passwd, str):
         print('[+]发送提醒邮件')
         try:
-            notify_self(email_addr, email_passwd, 
+            notify_self(email_addr, email_passwd,
                 "%s 完成每日健康上报！"%(datetime.now().date()), subject="每日健康上报")
             print('[-]发送提醒邮件成功')
         except:
@@ -118,5 +119,5 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
         raise
-    
-    exit(0)
+
+    sys.exit(0)

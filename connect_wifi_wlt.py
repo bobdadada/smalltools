@@ -1,6 +1,8 @@
 """
 windows系统连接wifi功能，并连接中科大网络通
 """
+import sys
+
 import requests
 
 from check_wifi import check_wifi
@@ -39,7 +41,7 @@ def main(name, password):
     if not ext_network_connectable():
         # 登录网络通
         wlt(name, password)
-    
+
     print('[*]完成连接WIFI且登入中科大网络通!')
 
 if __name__ == '__main__':
@@ -55,5 +57,5 @@ if __name__ == '__main__':
         print(e)
         raise
 
-    exit(0)
+    sys.exit(0)
 

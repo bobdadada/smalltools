@@ -1,9 +1,10 @@
 #! python3
 # -*- coding: utf-8 -*-
 
-import requests
-import re
+import sys
 import time
+import re
+import requests
 
 def main(name, password, force=False):
     print('中科大网络通登录联网服务！')
@@ -44,7 +45,7 @@ def main(name, password, force=False):
         else:
             raise Exception('[!]联网失败')
         time.sleep(3)
-    
+
     print('[*]完成中科大网络通登录联网服务！')
 
 if __name__ == '__main__':
@@ -60,5 +61,5 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
         raise
-    
-    exit(0)
+
+    sys.exit(0)
