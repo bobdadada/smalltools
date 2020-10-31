@@ -6,11 +6,12 @@ from datetime import datetime
 import time
 import random
 import urllib
+
 import requests
 from bs4 import BeautifulSoup
 
-from ustc_email import notify_self
-from regexp import date as date_reg
+from utils.ustc_email import notify_self
+from utils.regexp import date as date_reg
 
 def main(usrname, password, sleep=True, start_delaym=2, interval_delaym=1, email_addr=None, email_passwd=None):
     print('每日健康上报！')
@@ -104,8 +105,8 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='中科大健康上报')
-    parser.add_argument('--usrname', type=str, help='用户名称')
-    parser.add_argument('--password', type=str, help='用户密码')
+    parser.add_argument('usrname', type=str, help='用户名称')
+    parser.add_argument('password', type=str, help='用户密码')
     parser.add_argument('--nosleep', action='store_false', help='快速响应服务器请求')
     parser.add_argument('--sdelay', nargs=1, type=int, default=2, help='开始延迟分钟数')
     parser.add_argument('--idelay', nargs=1, type=int, default=1, help='中间延迟分钟数')

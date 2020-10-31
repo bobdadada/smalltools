@@ -5,8 +5,8 @@ import sys
 
 import requests
 
-from check_wifi import check_wifi
-from wifi_tools import connect_ap, isconnected
+from utils.check_wifi import check_wifi
+from utils.wifi_tools import connect_ap, isconnected
 from wlt import main as wlt
 
 def ext_network_connectable():
@@ -47,8 +47,8 @@ def main(name, password):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser('连接WIFI且登入中科大网络通')
-    parser.add_argument('--name', type=str, help='账号名称')
-    parser.add_argument('--password', type=str, help='账号密码')
+    parser.add_argument('name', type=str, help='账号名称')
+    parser.add_argument('password', type=str, help='账号密码')
     arg = parser.parse_args()
 
     try:
