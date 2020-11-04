@@ -1,8 +1,13 @@
 import sys
+import os
 
 from utils.install import install_all
 
 def main(objdir, srcdir=None, quiet=False):
+    if not os.path.exists(objdir):
+        os.makedirs(objdir)
+    elif os.path.isdir(objdir):
+        raise Exception(objdir + ' is not a directory,')
     if srcdir is None:
         srcdir = os.path.join(os.path.dirname(__file__), 'dist')
     install_all(srcdir, objdir, quiet)
