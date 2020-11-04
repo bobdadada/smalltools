@@ -2,9 +2,29 @@
 # -*- coding: UTF-8 -*-
 import os
 import sys
+import subprocess
+import chardet
 
 
-def check_wifi():
+def get_avaliable_aps():
+    """
+    导出当前电脑可连接的所有wifi名称，以元组的形式保存
+    """
+
+    # 结果
+    ssids = []
+
+    # 获取信息
+    messages = subprocess.check_output('netsh wlan show network')
+    messages = messages.decode(chardet.detect(messages)['encoding'], errors='ignore')
+
+    for message in messages.split('\r\n'):
+        if message.find("SSID ") != -1:
+            ssids.append(message[9:].strip())
+
+    return tuple(ssids)
+
+def get_wlan_profiles():
     """
     获取电脑连接过的所有wifi名称和密码，以wifi名称-密码的键值对形式存储结构。空密码的值未None。
     """
@@ -62,7 +82,12 @@ def check_wifi():
     return wifi_table
 
 if __name__ == '__main__':
-    print("正在查询......")
+    print("正在查询可连接的wifi......")
     # 将查询结果遍历输出
-    for name, passwd in check_wifi().items():
+    for name in get_avaliable_aps():
+        print("SSID名称：%s"%name)
+
+    print("\n正在查询连接过的wifi......")
+    # 将查询结果遍历输出
+    for name, passwd in get_wlan_profiles().items():
         print("wifi名称：%s，密码：%s"%(name, passwd))

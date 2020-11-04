@@ -5,7 +5,7 @@ import sys
 
 import requests
 
-from utils.check_wifi import check_wifi
+from utils.check_wlan import get_wlan_profiles, get_avaliable_aps
 from utils.wifi_tools import connect_ap, isconnected
 from wlt import main as wlt
 
@@ -26,7 +26,14 @@ def main(name, password):
     # 联网
     if not isconnected():
         print('[!]wifi未连接')
-        for ssid, key in check_wifi().items():
+        aps = get_wifi_avaliable()
+        if len(aps) == 0:
+            filter = lambda ssid: True
+        else:
+            filter = lambda ssid: True if ssid in aps else False
+        for ssid, key in get_wifi_profiles().items():
+            if not filter(ssid):
+                continue
             print('[+]尝试连接 %s'%ssid)
             if connect_ap(ssid, key):
                 print('[-]成功连接 %s'%ssid)
