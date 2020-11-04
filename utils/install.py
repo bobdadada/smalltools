@@ -10,25 +10,31 @@ def install_all(srcdir, objdir, quiet=False, exception_ok=False):
         install(os.path.join(srcdir, filename), objdir, quiet, exception_ok)
 
 def install(src, objdir, quiet=False, exception_ok=False):
-    try:
-        _, filename = os.path.split(src)
+    _, filename = os.path.split(src)
+    
+    update_flag = False
+
+    if filename in os.listdir(objdir):
+        # 时间戳比较
+        pst = os.stat(os.path.join(objdir, filename))
+        cst = os.stat(src)
+        if pst.st_mtime < cst.st_mtime:
+            update_flag = True
+    else:
+        update_flag = True
+    
+    if update_flag:
         if not quiet:
             print("[+]更新软件%s"%filename)
 
-        if filename in os.listdir(objdir):
-            pst = os.stat(os.path.join(objdir, filename))
-            cst = os.stat(src)
-
-            if pst.st_mtime < cst.st_mtime:
-                shutil.copy(src, objdir)
-        else:
+        try:
             shutil.copy(src, objdir)
-    
+        except:
+            if not quiet:
+                print("[!]更新软件%s失败"%filename)
+            if not exception_ok:
+                raise
+        
         if not quiet:
-            print("[-]更新软件%s成功"%filename)
-    except:
-        if not quiet:
-            print("[!]更新软件%s失败"%filename)
-        if not exception_ok:
-            raise
+            print("[-]更新软件%s成功"%filename)       
         
