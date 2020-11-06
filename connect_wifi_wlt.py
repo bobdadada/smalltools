@@ -26,12 +26,12 @@ def main(name, password):
     # 联网
     if not isconnected():
         print('[!]wifi未连接')
-        aps = get_wifi_avaliable()
+        aps = get_avaliable_aps()
         if len(aps) == 0:
             filter = lambda ssid: True
         else:
             filter = lambda ssid: True if ssid in aps else False
-        for ssid, key in get_wifi_profiles().items():
+        for ssid, key in get_wlan_profiles().items():
             if not filter(ssid):
                 continue
             print('[+]尝试连接 %s'%ssid)
