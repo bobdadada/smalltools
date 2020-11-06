@@ -10,9 +10,15 @@ import requests
 def main(name, password, force=False):
     print('中科大网络通登录联网服务！')
 
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                  'AppleWebKit/537.36 (KHTML, like Gecko) '
+                  'Chrome/67.0.3396.79 Safari/537.36'
+    }
+
     if not force:
         try:
-            r = requests.get('http://www.baidu.com')
+            r = requests.get('http://www.baidu.com', headers=headers)
             if len(r.text)>1000:
                 print('[*]已经可以连接外网！')
                 return
@@ -30,7 +36,7 @@ def main(name, password, force=False):
     parm2 = {'cmd':'set', 'type':7, 'exp':0}
 
     print('[+]登入网络通')
-    r1 = requests.get(url, params=parm1)
+    r1 = requests.get(url, params=parm1, headers=headers)
     r1.raise_for_status()
     r1.encoding = 'GB2312'
     if re.search('用户名不存在',r1.text) or re.search('请重新登录', r1.text):
@@ -38,9 +44,9 @@ def main(name, password, force=False):
     else:
         print('[-]登陆成功')
         print('[+]连接外网')
-        r2 = requests.get(url, params=parm2, cookies=r1.cookies)
+        r2 = requests.get(url, params=parm2, cookies=r1.cookies, headers=headers)
         r2.raise_for_status()
-        r3 = requests.get('http://www.baidu.com')
+        r3 = requests.get('http://www.baidu.com', headers=headers)
         if len(r3.text)>1000:
             print('[-]联网成功')
         else:
@@ -50,7 +56,9 @@ def main(name, password, force=False):
     print('[*]完成中科大网络通登录联网服务！')
 
 if __name__ == '__main__':
+    import time
     import argparse
+
     parser = argparse.ArgumentParser('中科大网络通登录联网服务')
     parser.add_argument('name', type=str, help='账号名称')
     parser.add_argument('password', type=str, help='账号密码')
@@ -62,5 +70,8 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
         raise
+    finally:
+        print("\n程序运行完成，10s后自动关闭\n")
+        time.sleep(10)
 
     sys.exit(0)

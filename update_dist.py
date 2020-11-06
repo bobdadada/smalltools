@@ -13,7 +13,9 @@ def main(objdir, srcdir=None, quiet=False):
     install_all(srcdir, objdir, quiet=quiet, exception_ok=True)
 
 if __name__ == '__main__':
+    import time
     import argparse
+    
     parser = argparse.ArgumentParser('安装可执行文件的工具')
     parser.add_argument('srcdir', type=str, help='可执行文件本地路径')
     parser.add_argument('objdir', type=str, help='可执行文件安装路径')
@@ -25,5 +27,9 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
         raise
+    finally:
+        # 等待一定时间，以供查看输出
+        print("\n程序运行完成，10s后自动关闭\n")
+        time.sleep(10)
 
     sys.exit(0)

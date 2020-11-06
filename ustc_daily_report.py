@@ -89,6 +89,7 @@ def main(usrname, password, data_file, sleep=True, start_delaym=2, interval_dela
             print('[!]发送提醒邮件失败')
 
 if __name__ == '__main__':
+    import time
     import argparse
 
     parser = argparse.ArgumentParser(description='中科大健康上报')
@@ -108,5 +109,8 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
         raise
+    finally:
+        print("\n程序运行完成，10s后自动关闭\n")
+        time.sleep(10)
 
     sys.exit(0)

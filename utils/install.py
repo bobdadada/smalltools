@@ -36,5 +36,6 @@ def install(src, objdir, quiet=False, exception_ok=False):
                 raise
         
         if not quiet:
-            print("[-]更新软件%s成功"%filename)       
-        
+            print("[-]更新软件%s成功"%filename)
+    else:
+        print("[*]软件%s不需要更新"%filename)
