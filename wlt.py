@@ -18,7 +18,7 @@ def main(name, password, force=False):
 
     if not force:
         try:
-            r = requests.get('http://www.baidu.com', headers=headers)
+            r = requests.get('https://www.baidu.com', headers=headers)
             if len(r.text)>1000:
                 print('[*]已经可以连接外网！')
                 return
@@ -46,7 +46,7 @@ def main(name, password, force=False):
         print('[+]连接外网')
         r2 = requests.get(url, params=parm2, cookies=r1.cookies, headers=headers)
         r2.raise_for_status()
-        r3 = requests.get('http://www.baidu.com', headers=headers)
+        r3 = requests.get('https://www.baidu.com', headers=headers)
         if len(r3.text)>1000:
             print('[-]联网成功')
         else:
