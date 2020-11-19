@@ -1,5 +1,6 @@
 import os
 import time
+
 import pywifi
 
 wifi = pywifi.PyWiFi()
