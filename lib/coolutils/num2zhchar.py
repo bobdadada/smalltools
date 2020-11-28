@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+有bug，需修复
+"""
+
 class ChineseDigitizer:
     '''
     #算法说明：要求字符串输入，现将字符串差费为整数部分和小数部分生成list[整数部分,小数部分]
@@ -13,18 +17,18 @@ class ChineseDigitizer:
     gdict = {1: '元', 2: '万', 3: '亿', 4: '兆'}  # 数字标识符
     xdict = {0: '零', 1: '壹', 2: '贰', 3: '叁', 4: '肆', 5: '伍', 6: '陆', 7: '柒', 8: '捌', 9: '玖'}
 
-    def csplit(self, cdata):
+    def csplit(self, cnum):
         """拆分函数，将整数字符串拆分成[亿，万，仟]的list"""
-        g = len(cdata) % 4
-        csdata = []
-        lx = len(cdata) - 1
+        g = len(cnum) % 4
+        csnum = []
+        lx = len(cnum) - 1
         if g > 0:
-            csdata.append(cdata[0:g])
+            csnum.append(cnum[0:g])
         k = g
         while k <= lx:
-            csdata.append(cdata[k:k + 4])
+            csnum.append(cnum[k:k + 4])
             k += 4
-        return csdata
+        return csnum
 
     def cschange(self, cki):
         """对[亿，万，仟]的list中每个字符串分组进行大写化再合并"""
@@ -42,10 +46,10 @@ class ChineseDigitizer:
             lk -= 1
         return chk
 
-    def cwchange(self, data):
-        cdata = str(data).split('.')
-        cki = cdata[0]
-        if len(cdata) == 1:
+    def cwchange(self, num):
+        cnum = str(num).split('.')
+        cki = cnum[0]
+        if len(cnum) == 1:
             i = 0
             chk = ''
             cski = self.csplit(cki)  # 分解字符数组[亿，万，仟]三组List:['0000','0000','0000']
@@ -69,7 +73,7 @@ class ChineseDigitizer:
                 else:
                     chk = chk + self.cschange(cski[i]) + self.xdict[ikl - i]  # 合并：前字符串大写+当前字符串大写+标识符
             # 处理小数部分
-            ckj = cdata[1]
+            ckj = cnum[1]
             lenkj = len(ckj)
             if lenkj == 1:  # 若小数只有1位
                 if int(ckj[0]) == 0:
@@ -93,4 +97,3 @@ _CWFACTORY = ChineseDigitizer()
 def num2zhchar(num):
     num = str(num)
     return _CWFACTORY.cwchange(num)
-
