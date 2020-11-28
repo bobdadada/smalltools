@@ -6,7 +6,7 @@ HEADERS = {
               'Chrome/67.0.3396.79 Safari/537.36'
 }
 
-def is_ext_network_connectable():    
+def is_ext_network_connectable():
     try:
         r = requests.get(r"https://www.baidu.com", headers=HEADERS)
         r.raise_for_status()
@@ -19,7 +19,7 @@ def is_ext_network_connectable():
 def get_binary_src(url, filename=None):
     if filename is None:
         filename = url.split('/')[-1]
-    
+
     r = requests.get(url)
     r.raise_for_status()
     with open(filename, 'wb') as f:

@@ -17,12 +17,12 @@ def full2half(ins):
             code = 0x0020
         else:
             code -= 0xFEE0
-        
+
         if code < 0x0020 or code > 0x007E:  # 对不在半角字符范围内的，返回原来字符
             outs += c
         else:
             outs += chr(code)
-    
+
     return outs
 
 def half2full(ins):
@@ -38,6 +38,6 @@ def half2full(ins):
             else:
                 code += 0xFEE0
             outs += chr(code)
-    
+
     return outs
 

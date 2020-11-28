@@ -10,7 +10,7 @@ def notify_self(server, addr, password, msg, subject=None):
     message['From'] = Header(formataddr(('我', addr)), 'utf-8')   # 发送者
     message['To'] =  Header(formataddr(('我', addr)), 'utf-8')    # 接收者
     message['Subject'] = Header(str(subject), 'utf-8')
-    
+
     with smtplib.SMTP() as smtpObj:
         smtpObj.connect(*server)
         smtpObj.login(addr, password)

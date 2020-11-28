@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
-#算法说明：要求字符串输入，现将字符串差费为整数部分和小数部分生成list[整数部分,小数部分]
-#将整数部分拆分为：[亿，万，仟]三组字符串组成的List:['0000','0000','0000']（根据实际输入生成阶梯List）
-#例如：600190000010.70整数部分拆分为：['600','1900','0010']
-#然后对list中每个字符串分组进行大写化再合并
-#最后处理小数部分的大写化
-'''
 
-
-class cnumber:
+class ChineseDigitizer:
+    '''
+    #算法说明：要求字符串输入，现将字符串差费为整数部分和小数部分生成list[整数部分,小数部分]
+    #将整数部分拆分为：[亿，万，仟]三组字符串组成的List:['0000','0000','0000']（根据实际输入生成阶梯List）
+    #例如：600190000010.70整数部分拆分为：['600','1900','0010']
+    #然后对list中每个字符串分组进行大写化再合并
+    #最后处理小数部分的大写化
+    '''
     cdict = {1: '', 2: '拾', 3: '佰', 4: '仟'}
     gdict = {1: '元', 2: '万', 3: '亿', 4: '兆'}  # 数字标识符
     xdict = {0: '零', 1: '壹', 2: '贰', 3: '叁', 4: '肆', 5: '伍', 6: '陆', 7: '柒', 8: '捌', 9: '玖'}
 
-    def csplit(self, cdata):  # 拆分函数，将整数字符串拆分成[亿，万，仟]的list
+    def csplit(self, cdata):
+        """拆分函数，将整数字符串拆分成[亿，万，仟]的list"""
         g = len(cdata) % 4
         csdata = []
         lx = len(cdata) - 1
@@ -26,7 +26,8 @@ class cnumber:
             k += 4
         return csdata
 
-    def cschange(self, cki):  # 对[亿，万，仟]的list中每个字符串分组进行大写化再合并
+    def cschange(self, cki):
+        """对[亿，万，仟]的list中每个字符串分组进行大写化再合并"""
         lenki = len(cki)
         i = 0
         lk = lenki
@@ -87,19 +88,9 @@ class cnumber:
         return chk
 
 
-_CWFACTORY = cnumber()
+_CWFACTORY = ChineseDigitizer()
 
 def num2zhchar(num):
     num = str(num)
     return _CWFACTORY.cwchange(num)
 
-if __name__ == '__main__':
-
-    pt = cnumber()
-
-    while True:
-        num = str(input('请输入转换金额：'))
-        if not num:
-            break
-        else:
-            print(pt.cwchange(num))
