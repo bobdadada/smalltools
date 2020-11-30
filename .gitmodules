@@ -1,0 +1,4 @@
+[submodule "lib/coolutils"]
+	path = lib/coolutils
+	url = https://github.com/bobdadada/coolutils
+	branch = master
