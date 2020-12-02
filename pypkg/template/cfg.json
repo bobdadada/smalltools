@@ -1,0 +1,19 @@
+{
+    "metadata": {
+        "name": "template",             // 程序名称
+        "main_file": "main.py"          // 主程序文件
+    },
+    "path": {
+        "library_path": "../lib/",
+        "bin_path": "../bin/",
+        "dist_path": "../dist/"
+    },
+    "install": {
+        "dir_pack": false,              // 以文件夹形式整理程序
+        "install_dir": ""               // 安装目录
+    },
+    "data": {
+        "files": [],                    // 包含的文件
+        "dirs": []                      // 包含的文件夹
+    }
+}
