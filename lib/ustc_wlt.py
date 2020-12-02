@@ -7,8 +7,8 @@ import re
 
 import requests
 
-from coolutils.web_tools import HEADERS as headers
-from coolutils.web_tools import is_ext_network_connectable
+from web_tools import HEADERS as headers
+from web_tools import is_ext_network_connectable
 
 def connect_wlt(name, password, force=False, verbose=False):
     if verbose:
