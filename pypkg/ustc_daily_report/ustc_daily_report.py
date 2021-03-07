@@ -56,18 +56,18 @@ def main(username, password, data_file, sleep=True, start_delaym=2, interval_del
         service = start_url+'/caslogin'
 
         login_url = 'https://passport.ustc.edu.cn/login'
-        r_se = session.get(login_url+'?service=%s'%urllib.parse.quote_plus(service))  # 获取 JSESSIONID cookie
+        session.get(login_url+'?service=%s'%urllib.parse.quote_plus(service))  # 获取 JSESSIONID cookie
         session.cookies.update({'lang':'zh'})
 
         data = {'model': 'uplogin.jsp', 'service': service, 'warn': '', 'showCode': '', 'username': username, 'password': password, 'button': ''}
         r_login = session.post(login_url, data=data)
         try:
             r_login.raise_for_status()
+            html_login = BeautifulSoup(r_login.text, features='html.parser')
+            _token = html_login.findChild('input', {'name':'_token'}).attrs['value']
         except:
             raise Exception('[!]登录失败')
         print('[-]登录成功')
-
-        html_login = BeautifulSoup(r_login.text, features='html.parser')
 
         try:
             # 获取上次上报的时间
@@ -88,7 +88,7 @@ def main(username, password, data_file, sleep=True, start_delaym=2, interval_del
             data = load_json(data_file, js_comments=True)
         except:
             raise Exception('[!]导入个人报告信息失败，请参考\n'+str(REPORT_TEMPLATE))
-        data.update({'_token': html_login.findChild('input', {'name':'_token'}).attrs['value']})
+        data.update({'_token': _token})
 
         # 上报
         print('[+]健康上报')
