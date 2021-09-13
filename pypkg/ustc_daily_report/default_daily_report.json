@@ -15,5 +15,7 @@
     "last_touch_sars": 0,  // 没接触过感染者
     "last_touch_sars_date": "",
     "last_touch_sars_detail": "",
+    "is_danger": 0,  // 当前居住地是否为疫情中高风险地区
+    "is_goto_danger": 0,  // 14天内是否有疫情中高风险地区旅居史
     "other_detail": ""
 }

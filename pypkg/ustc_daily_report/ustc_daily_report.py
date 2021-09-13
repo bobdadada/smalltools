@@ -32,6 +32,8 @@ REPORT_TEMPLATE = {
     "last_touch_sars": 0,  # 没接触过感染者
     "last_touch_sars_date": "",
     "last_touch_sars_detail": "",
+    "is_danger": 0,  # 当前居住地是否为疫情中高风险地区
+    "is_goto_danger": 0,  # 14天内是否有疫情中高风险地区旅居史
     "other_detail": ""
 }
 
@@ -44,7 +46,7 @@ def main(username, password, data_file, sleep=True, start_delaym=2, interval_del
     if sleep:
         time.sleep(random.random()*start_delaym*60)
 
-    start_url = "https://weixine.ustc.edu.cn/2020"
+    start_url = "https://weixine.ustc.edu.cn/2020"  # 健康上报起始url
 
     User_Agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.72 Safari/537.36'
 
@@ -53,24 +55,30 @@ def main(username, password, data_file, sleep=True, start_delaym=2, interval_del
 
         # 登录
         print('[+]学号登入')
-        service = start_url+'/caslogin'
-
-        login_url = 'https://passport.ustc.edu.cn/login'
-        session.get(login_url+'?service=%s'%urllib.parse.quote_plus(service))  # 获取 JSESSIONID cookie
-        session.cookies.update({'lang':'zh'})
-
-        data = {'model': 'uplogin.jsp', 'service': service, 'warn': '', 'showCode': '', 'username': username, 'password': password, 'button': ''}
-        r_login = session.post(login_url, data=data)
         try:
+            service = start_url+'/caslogin'  # 健康上报用户登录所用的服务器地址
+            login_url = 'https://passport.ustc.edu.cn/login'  # 科大统一用户登录所用的服务器地址
+
+            # 获取JSESSIONID保存在cookie中，并在返回的html中提取CAS_LT字段
+            r_caslt = session.get(login_url+'?service=%s'%urllib.parse.quote_plus(service))
+            session.cookies.update({'lang':'zh'})
+            
+            r_caslt.raise_for_status()
+            html_caslt = BeautifulSoup(r_caslt.text, features='html.parser')
+            caslt = html_caslt.findChild('input', {'name':'CAS_LT'}).attrs['value']
+
+            # 登录健康上报网站
+            login_data = {'model': 'uplogin.jsp', 'service': service, 'CAS_LT': caslt,
+                    'warn': '', 'showCode': '', 'username': username, 'password': password, 'button': ''}
+            r_login = session.post(login_url, data=login_data)
             r_login.raise_for_status()
             html_login = BeautifulSoup(r_login.text, features='html.parser')
-            _token = html_login.findChild('input', {'name':'_token'}).attrs['value']
         except:
             raise Exception('[!]登录失败')
         print('[-]登录成功')
 
+        # 获取上次上报的时间，防止重复上报
         try:
-            # 获取上次上报的时间
             i = html_login.text.find('上次上报时间')
             if i >= 0:
                 past_date = re.match('(.*)'+date_reg, html_login.text[i:]).group(2)
@@ -83,24 +91,25 @@ def main(username, password, data_file, sleep=True, start_delaym=2, interval_del
         if sleep:
             time.sleep(random.random()*interval_delaym*60)
 
-        # 制造表单
+        # 制造每日健康上报的表单
         try:
-            data = load_json(data_file, js_comments=True)
+            data = {'_token': html_login.findChild('input', {'name':'_token'}).attrs['value']}
+            data.update(load_json(data_file, js_comments=True))
         except:
             raise Exception('[!]导入个人报告信息失败，请参考\n'+str(REPORT_TEMPLATE))
-        data.update({'_token': _token})
 
-        # 上报
+        # 健康上报
         print('[+]健康上报')
         r_report = session.post(start_url+'/daliy_report', data)
         try:
             r_report.raise_for_status()
         except:
             raise Exception('[!]上报失败')
-        print('[*]上报成功')
+        print('[-]上报成功')
 
         print('[*]完成每日健康上报！')
 
+    # 如有必要，可以发送邮件提醒
     if isinstance(email_addr, str) and isinstance(email_passwd, str):
         print('[+]发送提醒邮件')
         try:
