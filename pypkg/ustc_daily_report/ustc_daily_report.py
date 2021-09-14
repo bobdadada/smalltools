@@ -113,7 +113,7 @@ def main(username, password, data_file, sleep=True, start_delaym=2, interval_del
     if isinstance(email_addr, str) and isinstance(email_passwd, str):
         print('[+]发送提醒邮件')
         try:
-            notify_self(('mail.ustc.edu.cn', 25), email_addr, email_passwd,
+            notify_self(('mail.ustc.edu.cn', 25), (email_addr, email_passwd),
                 "%s 完成每日健康上报！"%(datetime.now().date()), subject="每日健康上报")
             print('[-]发送提醒邮件成功')
         except:
