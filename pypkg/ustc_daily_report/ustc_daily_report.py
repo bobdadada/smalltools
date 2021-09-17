@@ -16,24 +16,29 @@ from coolutils.regexp import date as date_reg
 
 
 REPORT_TEMPLATE = {
-    "now_address": 1,  # 内地
+    "now_address": "1",  # 内地
     "gps_now_address": "",
-    "now_province": 340000,  # 安徽省
+    "now_province": "340000",  # 安徽省
     "gps_province": "",
-    "now_city": 340100,  # 合肥市
+    "now_city": "340100",  # 合肥市
     "gps_city": "",
+    "now_country": "340111",  # 包河区
+    "gps_country": "",
     "now_detail": "",
-    "is_inschool": 2,  # 在校
-    "body_condition": 1,  # 正常
+    "is_inschool": "2",  # 在校
+    "body_condition": "1",  # 正常
     "body_condition_detail": "",
-    "now_status": 1,  # 正常在校园中
+    "now_status": "1",  # 正常在校园中
     "now_status_detail": "",
-    "has_fever": 0,  # 不发热
-    "last_touch_sars": 0,  # 没接触过感染者
+    "has_fever": "0",  # 不发热
+    "last_touch_sars": "0",  # 没接触过感染者
     "last_touch_sars_date": "",
     "last_touch_sars_detail": "",
-    "is_danger": 0,  # 当前居住地是否为疫情中高风险地区
-    "is_goto_danger": 0,  # 14天内是否有疫情中高风险地区旅居史
+    "is_danger": "0",  # 当前居住地是否为疫情中高风险地区
+    "is_goto_danger": "0",  # 14天内是否有疫情中高风险地区旅居史
+    "jinji_lxr": "",  # 紧急联系人
+    "jinji_guanxi": "",  # 与本人关系
+    "jiji_mobile": "",  # 联系人电话，此处原网站代码有问题
     "other_detail": ""
 }
 
@@ -91,21 +96,66 @@ def main(username, password, data_file, sleep=True, start_delaym=2, interval_del
         if sleep:
             time.sleep(random.random()*interval_delaym*60)
 
-        # 制造每日健康上报的表单
+        # 获取网上的当前健康状况，并进行评估
+        body_condition = '1' # 正常
         try:
-            data = {'_token': html_login.findChild('input', {'name':'_token'}).attrs['value']}
+            for e in html_login.findChild('select', {'name': 'body_condition'}).findChildren('option'):
+                if 'selected' in e.attrs:
+                    body_condition = e.attrs['value']
+        except:
+            pass
+        if body_condition != '1':
+            print('[*]健康状况不正常，请手动上报')
+            return            
+
+        try:
+            data = {"_token": html_login.findChild('input', {'name': '_token'}).attrs['value']}
+        except:
+            raise Exception('[!]无法从登录网站上获取获取_token')
+
+        # 制造每日健康上报的表单
+        data.update(REPORT_TEMPLATE)
+        try:
             data.update(load_json(data_file, js_comments=True))
         except:
-            raise Exception('[!]导入个人报告信息失败，请参考\n'+str(REPORT_TEMPLATE))
-
+            print('[*]没有本地的个人报告信息，使用默认的报告格式')
+    
+        print('[+]从网站上更新部分个人报告信息')
+        try:        
+            for key in ('now_province', 'now_city', 'now_country'):
+                data.update({key: html_login.findChild(
+                    'input', {'id': key+'_hidden'}).attrs['value']})
+            for key in ('now_status',):
+                for e in html_login.findChild('select', {'name': key}).findChildren('option'):
+                    if 'selected' in e.attrs:
+                        data.update({key: e.attrs['value']})
+            for key in ("now_address", "is_inschool", "has_fever", "last_touch_sars", "is_danger", "is_goto_danger"):
+                for e in html_login.findChild('input', {'name': key}):
+                    if 'checked' in e.attrs:
+                        data.update({key: e.attrs['value']})
+            for key in ("jinji_lxr", "jinji_guanxi", "jiji_mobile"):
+                data.update({key: html_login.findChild('input', {'type': 'text', 'name': key}).attrs['value']})
+        except:
+            raise Exception('[!]无法从网站上更新部分个人报告信息')
+        print('[-]更新部分个人报告信息成功')
+        
         # 健康上报
         print('[+]健康上报')
         r_report = session.post(start_url+'/daliy_report', data)
         try:
             r_report.raise_for_status()
+
+            # 获取时间
+            html_report = BeautifulSoup(r_report.text, features='html.parser')
+            i = html_report.text.find('上次上报时间')
+            if i >= 0:
+                past_date = re.match('(.*)'+date_reg, html_login.text[i:]).group(2)
+                if datetime.now().date() == datetime.strptime(past_date, '%Y-%m-%d').date():
+                    print('[-]上报成功')
+            else:
+                raise Exception('[!]上报失败')
         except:
             raise Exception('[!]上报失败')
-        print('[-]上报成功')
 
         print('[*]完成每日健康上报！')
 
@@ -113,11 +163,11 @@ def main(username, password, data_file, sleep=True, start_delaym=2, interval_del
     if isinstance(email_addr, str) and isinstance(email_passwd, str):
         print('[+]发送提醒邮件')
         try:
-            notify_self(('mail.ustc.edu.cn', 25), (email_addr, email_passwd),
+            notify_self(('mail.ustc.edu.cn', 465, True), (email_addr, email_passwd),
                 "%s 完成每日健康上报！"%(datetime.now().date()), subject="每日健康上报")
             print('[-]发送提醒邮件成功')
         except:
-            print('[!]发送提醒邮件失败')
+            raise Exception('[!]发送提醒邮件失败')
 
 def __main__():
     import time

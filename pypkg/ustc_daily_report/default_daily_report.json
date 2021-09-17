@@ -1,21 +1,26 @@
 {
-    "now_address": 1,  // 内地
+    "now_address": "1",  // 内地
     "gps_now_address": "",
-    "now_province": 340000,  // 安徽省
+    "now_province": "340000",  // 安徽省
     "gps_province": "",
-    "now_city": 340100,  // 合肥市
+    "now_city": "340100",  // 合肥市
     "gps_city": "",
+    "now_country": "340111",  // 包河区
+    "gps_country": "",
     "now_detail": "",
-    "is_inschool": 2,  // 在校
-    "body_condition": 1,  // 正常
+    "is_inschool": "2",  // 在校
+    "body_condition": "1",  // 正常
     "body_condition_detail": "",
-    "now_status": 1,  // 正常在校园中
+    "now_status": "1",  // 正常在校园中
     "now_status_detail": "",
-    "has_fever": 0,  // 不发热
-    "last_touch_sars": 0,  // 没接触过感染者
+    "has_fever": "0",  // 不发热
+    "last_touch_sars": "0",  // 没接触过感染者
     "last_touch_sars_date": "",
     "last_touch_sars_detail": "",
-    "is_danger": 0,  // 当前居住地是否为疫情中高风险地区
-    "is_goto_danger": 0,  // 14天内是否有疫情中高风险地区旅居史
+    "is_danger": "0",  // 当前居住地是否为疫情中高风险地区
+    "is_goto_danger": "0",  // 14天内是否有疫情中高风险地区旅居史
+    "jinji_lxr": "", // 紧急联系人
+    "jinji_guanxi": "",  // 与本人关系
+    "jiji_mobile": "",  // 联系人电话，此处原网站代码有问题
     "other_detail": ""
 }
