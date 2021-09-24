@@ -1,5 +1,5 @@
 __pycache__/
 build/
 dist/
+env/
 *.spec
-dist/connect_wifi_wlt.exe

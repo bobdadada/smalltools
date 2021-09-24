@@ -12,7 +12,7 @@ import pywifi
 
 def get_iface(i=0):
     """
-    获取编号为0的网卡，并断开当前连接
+    获取对应编号的网卡
     """
     wifi = pywifi.PyWiFi()
     iface = wifi.interfaces()[i]
