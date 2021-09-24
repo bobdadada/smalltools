@@ -9,7 +9,7 @@ import requests
 
 from coolutils.web_tools import HEADERS as headers
 from coolutils.web_tools import is_ext_network_connectable
-from ustc_wlt import connect_wlt
+from connect_wlt import connect_wlt
 
 def __main__():
     import time
