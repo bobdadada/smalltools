@@ -3,12 +3,17 @@
 简单的网卡联网功能
 """
 import os
-import sys
 import subprocess
-import chardet
 import time
 
+import chardet
 import pywifi
+
+__all__ = [
+    'get_iface', 'disconnect', 'isconnected', 'create_profile', 'search_network_profile_by_ssid',
+    'connect', 'connect_ap', 'get_scan_ssids_netsh', 'get_scan_ssids_pywifi', 'get_saved_wifi_table'
+]
+
 
 def get_iface(i=0):
     """
@@ -19,51 +24,64 @@ def get_iface(i=0):
 
     return iface
 
-def disconnect(iface):
+
+def disconnect(iface=None):
+    if iface is None:
+        iface = get_iface()
     iface.disconnect()
     time.sleep(1)
-    assert iface.status() in [pywifi.const.IFACE_DISCONNECTED, pywifi.const.IFACE_INACTIVE]
-    return iface
+    return iface.status() in [
+        pywifi.const.IFACE_DISCONNECTED, pywifi.const.IFACE_INACTIVE]
+
 
 def isconnected(iface=None):
     if iface is None:
         iface = get_iface()
-    if iface.status() == pywifi.const.IFACE_CONNECTED:
-        return True
-    else:
-        return False
+    return iface.status() == pywifi.const.IFACE_CONNECTED
 
-def create_ap_profile(ssid, key=None):
+
+def create_profile(ssid, key=None, auth=pywifi.const.AUTH_ALG_OPEN, cipher=pywifi.const.CIPHER_TYPE_CCMP,
+                   akm=pywifi.const.AKM_TYPE_WPA2PSK):
     profile = pywifi.Profile()
     profile.ssid = ssid
-    profile.auth = pywifi.const.AUTH_ALG_OPEN
-    profile.akm.append(pywifi.const.AKM_TYPE_WPA2PSK)
-    profile.cipher = pywifi.const.CIPHER_TYPE_CCMP
+    profile.auth = auth
+    profile.cipher = cipher
     profile.key = key
+    profile.akm.append(akm)
     return profile
 
-def connect_profile_by_iface(iface, profile):
+
+def search_network_profile_by_ssid(ssid, iface=None):
+    if iface is None:
+        iface = get_iface()
+
+    for profile in iface.network_profiles():
+        if profile.ssid == ssid:
+            return profile
+
+
+def connect(profile, iface=None):
+    if iface is None:
+        iface = get_iface()
+
     disconnect(iface)
     iface.connect(profile)
-    time.sleep(30)
-    assert iface.status() == pywifi.const.IFACE_CONNECTED
+    time.sleep(5)
+    return iface.status() == pywifi.const.IFACE_CONNECTED
 
-def connect_ap(ssid, key=None, force=False):
-    iface = get_iface()
-    if (not force) and isconnected(iface):
+
+def connect_ap(ssid, key=None, auth=pywifi.const.AUTH_ALG_OPEN, cipher=pywifi.const.CIPHER_TYPE_CCMP,
+               akm=pywifi.const.AKM_TYPE_WPA2PSK, force=False):
+    if (not force) and isconnected():
         return True
 
-    try:
-        profile = create_ap_profile(ssid, key)
-        connect_profile_by_iface(iface, profile)
-    except AssertionError:
-        return False
+    profile = create_profile(ssid, key, auth=auth, cipher=cipher, akm=akm)
+    return connect(profile)
 
-    return True
 
-def get_avaliable_aps():
+def get_scan_ssids_netsh():
     """
-    导出当前电脑可连接的所有wifi名称，以元组的形式保存
+    使用netsh查看当前位置处电脑可见的wifi名称，以元组的形式保存
     """
 
     # 结果
@@ -71,7 +89,8 @@ def get_avaliable_aps():
 
     # 获取信息
     messages = subprocess.check_output('netsh wlan show network')
-    messages = messages.decode(chardet.detect(messages)['encoding'], errors='ignore')
+    messages = messages.decode(chardet.detect(
+        messages)['encoding'], errors='ignore')
 
     for message in messages.split('\r\n'):
         if message.find("SSID ") != -1:
@@ -79,7 +98,20 @@ def get_avaliable_aps():
 
     return tuple(ssids)
 
-def get_wlan_profiles():
+
+def get_scan_ssids_pywifi():
+    """
+    使用pywifi查看当前位置处电脑可见的wifi名称，以元组的形式保存
+    """
+
+    iface = get_iface()
+    iface.scan()
+    time.sleep(5)
+
+    return tuple([profile.ssid for profile in iface.scan_results()])
+
+
+def get_saved_wifi_table():
     """
     获取电脑连接过的所有wifi名称和密码，以wifi名称-密码的键值对形式存储结构。空密码的值未None。
     """

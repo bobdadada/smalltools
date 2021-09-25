@@ -1,5 +1,5 @@
-python -m venv env
-call env/Scripts/Activate.bat
-pip install -r requirements.txt
 
-cmd /K
+cd %~f1
+
+python -m venv env
+env/Scripts/Activate.bat
