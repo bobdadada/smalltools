@@ -11,8 +11,8 @@ import pprint
 import requests
 from bs4 import BeautifulSoup
 
-from coolutils.email_tools import notify_self
-from coolutils.regexp import date as date_reg
+from bxypyutils.email_tools import notify_self
+from bxypyutils.regexp import date as date_reg
 
 VERSION = '1.0'
 

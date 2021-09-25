@@ -1,0 +1,4 @@
+pyinstaller
+requests
+beautifulsoup4
+bxypyutils

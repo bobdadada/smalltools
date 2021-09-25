@@ -4,7 +4,7 @@ import pywifi
 from pywifi import const  # 引用一些定义
 from tqdm import tqdm
 
-from _util import get_aps, crack_ap, classify_aps, sample_passwords
+from cracker_util import get_aps, crack_ap, classify_aps, sample_passwords
 
 
 def main(password_file, count=5, result_file='results.txt', stype=1):

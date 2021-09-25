@@ -7,8 +7,8 @@ import re
 
 import requests
 
-from coolutils.web_tools import HEADERS as headers
-from coolutils.web_tools import is_ext_network_connectable
+from web_tools import HEADERS as headers
+from web_tools import is_ext_network_connectable
 from connect_wlt import connect_wlt
 
 def __main__():
@@ -16,7 +16,7 @@ def __main__():
     import argparse
 
     parser = argparse.ArgumentParser('中科大网络通登录联网服务')
-    parser.add_argument('name', type=str, help='账号名称')
+    parser.add_argument('username', type=str, help='账号名称')
     parser.add_argument('password', type=str, help='账号密码')
     parser.add_argument('-t', '--type', type=int, default=7, help='通道类型,0~7之间的整数')
     parser.add_argument('-e', '--exp', type=int, default=0, help='联网时间(秒),0代表无限时间')
@@ -24,7 +24,8 @@ def __main__():
     arg = parser.parse_args()
 
     try:
-        connect_wlt(arg.name, arg.password, arg.type, arg.exp, force=arg.force, verbose=True)
+        connect_wlt(arg.username, arg.password, arg.type,
+                    arg.exp, force=arg.force, verbose=True)
     except Exception as e:
         print(e)
         raise

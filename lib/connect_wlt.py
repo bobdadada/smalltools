@@ -10,7 +10,7 @@ import requests
 from web_tools import HEADERS as headers
 from web_tools import is_ext_network_connectable
 
-def connect_wlt(name, password, _type, exp, force=False, verbose=False):
+def connect_wlt(username, password, type, exp, force=False, verbose=False):
     if verbose:
         print('中科大网络通登录联网服务！')
 
@@ -20,15 +20,15 @@ def connect_wlt(name, password, _type, exp, force=False, verbose=False):
                 print('[*]已经可以连接外网！')
             return
 
-    if (not isinstance(name, str)) or (not isinstance(password, str)):
+    if (not isinstance(username, str)) or (not isinstance(password, str)):
         raise Exception('[!]请输入正确的网络通用户名和密码')
 
     url = 'http://wlt.ustc.edu.cn/cgi-bin/ip'
 
     # 修改name和password为对应的账户和密码就可以
-    parm1 = {'cmd':'login', 'name': name, 'password': password}
+    parm1 = {'cmd':'login', 'name': username, 'password': password}
     # type为对应的通道，从0开始；exp为使用时间，以秒为单位，0代表无穷。可以上网查看。
-    parm2 = {'cmd':'set', 'type':_type, 'exp':exp}
+    parm2 = {'cmd':'set', 'type':type, 'exp':exp}
 
     if verbose:
         print('[+]登入网络通')

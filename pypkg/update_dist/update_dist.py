@@ -1,29 +1,43 @@
 import sys
 import os
 
-from coolutils.install_tools import install_all
+from bxypyutils.installer import install, install_all
 
-def main(objdir, srcdir=None, quiet=False):
-    if not os.path.exists(objdir):
-        os.makedirs(objdir)
-    elif not os.path.isdir(objdir):
-        raise Exception(objdir + ' is not a directory.')
-    if srcdir is None:
-        srcdir = os.path.join(os.path.dirname(__file__), 'dist')
-    install_all(srcdir, objdir, quiet=quiet, exception_ok=True)
+
+def main(src=None, obj=None, all_flag=True, quiet=False):
+    if obj is None:
+        raise Exception('[!]Please enter a correct destination folder.')
+
+    if not os.path.exists(src):
+        raise Exception('[!]Please enter a correct source path.')
+
+    if not os.path.exists(obj):
+        os.makedirs(obj)
+    elif not os.path.isdir(obj):
+        raise Exception('[!]%s is not a directory.' % obj)
+
+    if all_flag:
+        install_all(src, obj, quiet=quiet, exception_ok=True)
+    else:
+        install(src, obj, quiet=quiet, exception_ok=True)
+
 
 def __main__():
     import time
     import argparse
-    
-    parser = argparse.ArgumentParser('安装可执行文件的工具')
-    parser.add_argument('srcdir', type=str, help='可执行文件本地路径')
-    parser.add_argument('objdir', type=str, help='可执行文件安装路径')
-    parser.add_argument('--quiet', '-q', action='store_true', help='安静地运行')
-    arg = parser.parse_args()
+
+    parser = argparse.ArgumentParser('更新文件/文件夹的工具')
+    parser.add_argument('-a', '--all', action='store_true',
+                        help='将源文件夹内所有文件拷贝到目标目录中，不在目标目录下创建与源文件夹同名的文件夹')
+    parser.add_argument('-s', '--src', nargs='+',
+                        type=str, help='需要更新的文件/文件夹')
+    parser.add_argument('-o', '--obj', type=str, help='更新后文件/文件夹所在的目标文件夹路径')
+    parser.add_argument('-q', '--quiet', action='store_true', help='不打印输出')
+    args = parser.parse_args()
 
     try:
-        main(srcdir=arg.srcdir, objdir=arg.objdir, quiet=arg.quiet)
+        for s in args.src:
+            main(s, args.obj, all_flag=args.all, quiet=args.quiet)
     except Exception as e:
         print(e)
         raise
@@ -33,6 +47,7 @@ def __main__():
         time.sleep(10)
 
     sys.exit(0)
+
 
 if __name__ == '__main__':
     __main__()
