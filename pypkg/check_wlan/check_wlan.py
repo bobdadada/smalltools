@@ -4,6 +4,19 @@ from tabulate import tabulate
 
 from wifi_tools import get_scan_ssids_pywifi, get_store_wifi_table
 
+def main_interface():
+    print('交互式查询本机存储的WLAN，使用CTRL+C退出程序')
+    store_wifi_table = get_store_wifi_table()
+    try:
+        while True:
+            ssid = input('>>请输入WLAN名称：')
+            if ssid in store_wifi_table:
+                print('[*]WLAN密码: %s' % (store_wifi_table[ssid]))
+            else:
+                print("[!]wlan: %s 不在电脑中" % (ssid))
+    except KeyboardInterrupt:
+        pass
+    
 
 def main(mode, **kwargs):
     if mode & 0b01:
@@ -17,7 +30,7 @@ def main(mode, **kwargs):
             else:
                 print("[!]wlan: %s 不在电脑中" % (kwargs['store_ssid']))
         else:
-            print(tabulate(get_store_wifi_table().items(), headers=('名称', '密码')))
+            print(tabulate(store_wifi_table.items(), headers=('名称', '密码')))
         print("[-]查询完成")
 
     if mode & 0b10:
@@ -30,34 +43,29 @@ def main(mode, **kwargs):
 
 def __main__():
     import argparse
-    import time
 
-    parser = argparse.ArgumentParser(description="打印可用的WLAN信息")
-    parser.add_argument('--show_all', action='store_true', help='打印所有信息')
-    parser.add_argument('--store', nargs='?', const=True,
-                        metavar="SSID", help='打印电脑中存储过的WLAN')
-    parser.add_argument('--scan', action='store_true',
-                        help='打印当前位置扫描出的WLAN')
-    args = parser.parse_args()
+    if len(sys.argv) == 1:
+        main_interface()
+    else:
+        parser = argparse.ArgumentParser(description="打印可用的WLAN信息")
+        parser.add_argument('--show_all', action='store_true', help='打印所有信息')
+        parser.add_argument('--store', nargs='?', const=True,
+                            metavar="SSID", help='打印电脑中存储过的WLAN')
+        parser.add_argument('--scan', action='store_true',
+                            help='打印当前位置扫描出的WLAN')
+        args = parser.parse_args()
 
-    mode, kwargs = 0, {}
-    if args.show_all:
-        mode |= 0b11
-    if args.store:
-        mode |= 0b01
-        if isinstance(args.store, str):
-            kwargs['store_ssid'] = args.store
-    if args.scan:
-        mode |= 0b10
+        mode, kwargs = 0, {}
+        if args.show_all:
+            mode |= 0b11
+        if args.store:
+            mode |= 0b01
+            if isinstance(args.store, str):
+                kwargs['store_ssid'] = args.store
+        if args.scan:
+            mode |= 0b10
 
-    try:
         main(mode, **kwargs)
-    except Exception as e:
-        print(e)
-        raise
-    finally:
-        print("\n程序运行完成，10s后自动关闭\n")
-        time.sleep(10)
 
     sys.exit(0)
 
