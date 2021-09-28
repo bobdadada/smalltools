@@ -1,5 +1,4 @@
 pyinstaller
-requests
 pywifi
 comtypes
 chardet

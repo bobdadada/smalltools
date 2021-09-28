@@ -4,8 +4,7 @@ window连接wifi功能
 import sys
 from pprint import pprint
 
-import requests
-from wifi_tools import connect, search_network_profile_by_ssid, isconnected, get_saved_wifi_table, get_scan_ssids_pywifi
+from wifi_tools import connect, search_network_profile_by_ssid, isconnected, get_store_wifi_table, get_scan_ssids_pywifi
 
 
 def main():
@@ -20,7 +19,7 @@ def main():
             print('[*]当前位置可用的wifi为')
             pprint(assids)
 
-            wifi_table = get_saved_wifi_table()
+            wifi_table = get_store_wifi_table()
 
             for assid in assids:
                 if assid in wifi_table:
@@ -51,7 +50,7 @@ def __main__():
     import argparse
 
     parser = argparse.ArgumentParser(description='自动选择可用的WIFI并连接')
-    arg = parser.parse_args()
+    args = parser.parse_args()
 
     try:
         main()

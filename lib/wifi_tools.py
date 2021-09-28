@@ -11,7 +11,7 @@ import pywifi
 
 __all__ = [
     'get_iface', 'disconnect', 'isconnected', 'create_profile', 'search_network_profile_by_ssid',
-    'connect', 'connect_ap', 'get_scan_ssids_netsh', 'get_scan_ssids_pywifi', 'get_saved_wifi_table'
+    'connect', 'connect_ap', 'get_scan_ssids_netsh', 'get_scan_ssids_pywifi', 'get_store_wifi_table'
 ]
 
 
@@ -111,7 +111,7 @@ def get_scan_ssids_pywifi():
     return tuple([profile.ssid for profile in iface.scan_results()])
 
 
-def get_saved_wifi_table():
+def get_store_wifi_table():
     """
     获取电脑连接过的所有wifi名称和密码，以wifi名称-密码的键值对形式存储结构。空密码的值未None。
     """
@@ -153,8 +153,8 @@ def get_saved_wifi_table():
                 if info.find(u"安全密钥               :") != -1:
                     # 判断是否存在密钥
                     if info[21:].strip() == '不存在':
-                        # 不存在密钥时，使用None为值
-                        wifi_table[wifiname] = None
+                        # 不存在密钥时，使用""空字符串为值
+                        wifi_table[wifiname] = ""
                         break
                 elif info.find(u"关键内容            :") != -1:
                     # 获取字符串指定位置的内容并判断是否为空
