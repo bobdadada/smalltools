@@ -3,18 +3,56 @@ import os
 
 from bxypyutils.installer import install, install_all
 
+__description__ = """
+更新文件或文件夹的工具
+"""
+
+
+def main_interface():
+    print(__description__)
+    print('使用CTRL+C推出程序')
+
+    try:
+        while True:
+            src = input('>>请输入源文件或文件夹的路径：')
+            if os.path.exists(src):
+                break
+            else:
+                print('[!]源文件或源文件夹不存在')
+
+        while True:
+            obj = input('>>请输入目标文件夹的路径：')
+            if not os.path.exists(obj):
+                break
+            else:
+                if not os.path.isdir(obj):
+                    print('[!]目标路径存在同名的文件')
+
+        all_flag = True
+        if os.path.isdir(src):
+            if input(">>是否在目标文件中创建同名源文件夹[y|n]？") == 'y':
+                all_flag = False
+
+        if all_flag:
+            install_all(src, obj, quiet=False, exception_ok=True)
+        else:
+            install(src, obj, quiet=False, exception_ok=True)
+
+    except KeyboardInterrupt:
+        pass
+
 
 def main(src=None, obj=None, all_flag=True, quiet=False):
-    if obj is None:
-        raise Exception('[!]Please enter a correct destination folder.')
-
     if not os.path.exists(src):
-        raise Exception('[!]Please enter a correct source path.')
+        raise Exception('[!]请输入正确的源文件或文件夹路径')
+
+    if obj is None:
+        raise Exception('[!]请输入正确的目标文件夹路径')
 
     if not os.path.exists(obj):
         os.makedirs(obj)
     elif not os.path.isdir(obj):
-        raise Exception('[!]%s is not a directory.' % obj)
+        raise Exception('[!]%s不是文件夹路径' % obj)
 
     if all_flag:
         install_all(src, obj, quiet=quiet, exception_ok=True)
@@ -26,25 +64,29 @@ def __main__():
     import time
     import argparse
 
-    parser = argparse.ArgumentParser('更新文件/文件夹的工具')
-    parser.add_argument('-a', '--all', action='store_true',
-                        help='将源文件夹内所有文件拷贝到目标目录中，不在目标目录下创建与源文件夹同名的文件夹')
-    parser.add_argument('-s', '--src', nargs='+',
-                        type=str, help='需要更新的文件/文件夹')
-    parser.add_argument('-o', '--obj', type=str, help='更新后文件/文件夹所在的目标文件夹路径')
-    parser.add_argument('-q', '--quiet', action='store_true', help='不打印输出')
-    args = parser.parse_args()
+    if len(sys.argv) == 1:
+        main_interface()
+    else:
+        parser = argparse.ArgumentParser(description=__description__)
+        parser.add_argument('-a', '--all', action='store_true',
+                            help='将源文件夹内所有文件拷贝到目标目录中，不在目标目录下创建与源文件夹同名的文件夹')
+        parser.add_argument('src', nargs='+',
+                            type=str, help='需要更新的文件/文件夹')
+        parser.add_argument('-o', '--obj', type=str,
+                            default='dist', help='更新后文件/文件夹所在的目标文件夹路径，默认为./dist')
+        parser.add_argument('-q', '--quiet', action='store_true', help='不打印输出')
+        args = parser.parse_args()
 
-    try:
-        for s in args.src:
-            main(s, args.obj, all_flag=args.all, quiet=args.quiet)
-    except Exception as e:
-        print(e)
-        raise
-    finally:
-        # 等待一定时间，以供查看输出
-        print("\n程序运行完成，10s后自动关闭\n")
-        time.sleep(10)
+        try:
+            for s in args.src:
+                main(s, args.obj, all_flag=args.all, quiet=args.quiet)
+        except Exception as e:
+            print(e)
+            raise
+        finally:
+            # 等待一定时间，以供查看输出
+            print("\n程序运行完成，10s后自动关闭\n")
+            time.sleep(10)
 
     sys.exit(0)
 
