@@ -10,33 +10,56 @@ __description__ = """
 
 def main_interface():
     print(__description__)
-    print('使用CTRL+C推出程序')
+    print('使用CTRL+C退出程序')
 
     try:
-        while True:
-            src = input('>>请输入源文件或文件夹的路径：')
-            if os.path.exists(src):
-                break
+        run_flag = True
+        while run_flag:
+
+            while True:
+                src = input('>>请输入源文件或文件夹的路径：')
+                if os.path.exists(src):
+                    break
+                else:
+                    print('[!]源文件或源文件夹不存在')
+
+            while True:
+                obj = input('>>请输入目标文件夹的路径：')
+                if not os.path.exists(obj):
+                    os.makedirs(obj)
+                    break
+                else:
+                    if not os.path.isdir(obj):
+                        print('[!]目标路径存在同名的文件')
+                    else:
+                        break
+
+            all_flag = True
+            if os.path.isdir(src):
+                while True:
+                    reply = input(">>是否在目标文件中创建同名源文件夹[y|n](默认为n)？")
+                    if reply not in ['y', 'n', '']:
+                        print('[!]请输入y或n，或者使用默认')
+                    else:
+                        if reply == 'y':
+                            all_flag = False
+                        break
+
+            if all_flag:
+                install_all(src, obj, quiet=False, exception_ok=True)
             else:
-                print('[!]源文件或源文件夹不存在')
+                install(src, obj, quiet=False, exception_ok=True)
 
-        while True:
-            obj = input('>>请输入目标文件夹的路径：')
-            if not os.path.exists(obj):
-                break
-            else:
-                if not os.path.isdir(obj):
-                    print('[!]目标路径存在同名的文件')
-
-        all_flag = True
-        if os.path.isdir(src):
-            if input(">>是否在目标文件中创建同名源文件夹[y|n]？") == 'y':
-                all_flag = False
-
-        if all_flag:
-            install_all(src, obj, quiet=False, exception_ok=True)
-        else:
-            install(src, obj, quiet=False, exception_ok=True)
+            while True:
+                reply = input('>>是否重新运行程序[y|n](默认为n)？')
+                if reply not in ['y', 'n', '']:
+                    print('[!]请输入y或n，或者使用默认')
+                else:
+                    if reply == 'y':
+                        run_flag = True
+                    else:
+                        run_flag = False
+                    break
 
     except KeyboardInterrupt:
         pass
