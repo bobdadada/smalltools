@@ -5,7 +5,7 @@ import random
 from pywifi import const  # 引用一些定义
 
 __all__ = [
-    'get_aps', 'classify_aps', 'crack_ap', 'sample_passwords'
+    'get_aps', 'classify_aps', 'try_connect', 'sample_passwords'
 ]
 
 
@@ -45,36 +45,31 @@ def classify_aps(profiles):
     return needpwd, notneedpwd
 
 
-def crack_ap(iface, profile):
+def try_connect(iface, profile):
     """
-    使用密码key来测试名称为ssid的热点能否连接上
+    使用profile连接iface，如果连接失败，则清除profile
     """
     iface.disconnect()  # 断开无限网卡连接
     time.sleep(1)
 
-    ssid = profile.ssid
-
     # 网卡断开链接后开始连接测试
     if iface.status() == const.IFACE_DISCONNECTED:
-        try:
-            iface.add_network_profile(profile)
-            iface.connect(profile)
+        iface.add_network_profile(profile)
+        iface.connect(profile)
 
-            # wifi连接时间
-            time.sleep(2)
-            return iface.status() == const.IFACE_CONNECTED
+        # wifi连接时间
+        time.sleep(2)
+        if iface.status() != const.IFACE_CONNECTED:
 
-        except:
-            raise
-
-        finally:
-            # 清理痕迹，直接使用iface.remove_network_profile(profile)会出现问题
+            # 清理network_profiles
             network_profiles = iface.network_profiles()
             for network_profile in network_profiles:
-                if network_profile.ssid == ssid:
+                if all(getattr(profile, attr) != getattr(network_profile, attr) for attr in ('ssid', 'key')):
                     iface.remove_network_profile(network_profile)
-                    
 
+            return False
+        else:
+            return True
     else:
         return None
 

