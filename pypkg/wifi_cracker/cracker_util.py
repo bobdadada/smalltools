@@ -8,6 +8,7 @@ __all__ = [
     'get_aps', 'classify_aps', 'crack_ap', 'sample_passwords'
 ]
 
+
 def get_aps(iface, count=None, filtered_ssids=None):
     """
     获取信号强度靠前的count个信号的ssid
@@ -51,6 +52,8 @@ def crack_ap(iface, profile):
     iface.disconnect()  # 断开无限网卡连接
     time.sleep(1)
 
+    ssid = profile.ssid
+
     # 网卡断开链接后开始连接测试
     if iface.status() == const.IFACE_DISCONNECTED:
         try:
@@ -63,9 +66,13 @@ def crack_ap(iface, profile):
 
         except:
             raise
+
         finally:
             # 清理痕迹
-            iface.remove_network_profile(profile)
+            for network_profile in iface.network_profiles():
+                if network_profile.ssid == ssid:
+                    iface.remove_network_profile(network_profile)
+
     else:
         return None
 
