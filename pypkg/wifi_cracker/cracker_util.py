@@ -82,10 +82,10 @@ def crack_ap(iface, profile):
 def sample_passwords(passwords, stype):
     """
     密码本采样类型：
-        0: 完全复制密码本
-        1: 提取前200个密码
-        2: 随机采取sqrt(length)个密码
-        3: 提取前200个密码+随机采取sqrt(remaining_length)个密码
+    0: 完全复制密码本
+    1: 提取前200个密码
+    2: 随机采取sqrt(length)个密码
+    3: 提取前200个密码+随机采取sqrt(remaining_length)个密码
     """
     if stype == 1:
         if len(passwords) < 200:

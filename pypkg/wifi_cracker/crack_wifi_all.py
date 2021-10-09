@@ -16,15 +16,16 @@ def main(password_file, count=5, iface_name=None, result_file='results.txt', sty
 
     print('[+]获取网卡')
     wifi = pywifi.PyWiFi()  # 抓取网卡接口
-    if len(wifi.interfaces) == 0:
+    ifaces = wifi.interfaces()
+    if len(ifaces) == 0:
         print('[-]没有可用的网卡')
         return
     else:
         if not iface_name:
-            iface = wifi.interfaces()[0]  # 获取网卡，对于wifi连接服务，默认为0号网卡
+            iface = ifaces[0]  # 获取网卡，对于wifi连接服务，默认为0号网卡
             print('[-]成功获取网卡 %s' % (iface.name))
         else:
-            for iface in wifi.interfaces():
+            for iface in ifaces:
                 if iface.name == iface_name:
                     print('[-]成功获取网卡 %s' % (iface_name))
                     break
@@ -86,7 +87,9 @@ def __main__():
     parser.add_argument('-c', '--count', type=int,
                         default=5, help='所要破解的热点个数，默认为破解5个')
     parser.add_argument('--iface_name', type=str,
-                        help='无限网卡名称，window系统可以通过设备管理器查看，linux系统可在/var/run/wpa_supplicant/中查看。' +
+                        help='无限网卡名称，' +
+                        'window系统可以通过设备管理器查看，' +
+                        'linux系统可在/var/run/wpa_supplicant/中查看。' +
                         '默认为第一个网卡设备。')
     parser.add_argument('--result_file', type=str,
                         default='results.txt', help='保存所有热点密码结果文件，默认为results.txt')
