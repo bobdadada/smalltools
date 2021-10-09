@@ -23,10 +23,10 @@ def main(password_file, count=5, iface_name=None, result_file='results.txt', sty
     else:
         if not iface_name:
             iface = ifaces[0]  # 获取网卡，对于wifi连接服务，默认为0号网卡
-            print('[-]成功获取网卡 %s' % (iface.name))
+            print('[-]成功获取网卡 %s' % (iface.name()))
         else:
             for iface in ifaces:
-                if iface.name == iface_name:
+                if iface.name() == iface_name:
                     print('[-]成功获取网卡 %s' % (iface_name))
                     break
             else:
