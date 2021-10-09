@@ -1,3 +1,4 @@
 pyinstaller
 pywifi
 comtypes
+tqdm
