@@ -68,10 +68,12 @@ def crack_ap(iface, profile):
             raise
 
         finally:
-            # 清理痕迹
-            for network_profile in iface.network_profiles():
+            # 清理痕迹，直接使用iface.remove_network_profile(profile)会出现问题
+            network_profiles = iface.network_profiles()
+            for network_profile in network_profiles:
                 if network_profile.ssid == ssid:
                     iface.remove_network_profile(network_profile)
+                    
 
     else:
         return None
