@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#! /usr/bin/python3
 
 from bxypyutils.email_tools import send_email
 
