@@ -25,7 +25,7 @@ def main(password_file, ssid, result_file='results.txt', stype=0):
     passwords = []
     with open(password_file) as f:
         for line in f:
-            passwords.append(line.strip())
+            passwords.append(line.strip('\n'))
     print('[-]成功导入密码本')
 
     print('[+]扫描热点')
