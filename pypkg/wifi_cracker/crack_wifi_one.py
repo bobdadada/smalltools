@@ -59,7 +59,7 @@ def __main__():
     parser.add_argument('password_file', type=str, help='密码本文件')
     parser.add_argument('ssid', type=str, help='所要破解的 SSID 名称')
     parser.add_argument('--result_file', type=str,
-                        default='results.txt', help='保存所有热点密码结果文件')
+                        default='results.txt', help='保存所有热点密码结果文件，默认为results.txt')
     parser.add_argument('-s', '--stype', type=int, default=0,
                         help=sample_passwords.__doc__+'，默认为0')
     args = parser.parse_args()

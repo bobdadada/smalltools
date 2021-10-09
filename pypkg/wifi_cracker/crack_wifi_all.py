@@ -71,7 +71,7 @@ def __main__():
     parser.add_argument('-c', '--count', type=int,
                         default=5, help='所要破解的热点个数，默认为破解5个')
     parser.add_argument('--result_file', type=str,
-                        default='results.txt', help='保存所有热点密码结果文件')
+                        default='results.txt', help='保存所有热点密码结果文件，默认为results.txt')
     parser.add_argument('-s', '--stype', type=int, default=1,
                         help=sample_passwords.__doc__+'，默认为1')
     args = parser.parse_args()
