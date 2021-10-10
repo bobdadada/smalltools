@@ -40,7 +40,7 @@ def main(password_file, ssid, force=False, iface_name=None, result_file='results
             if not force:
                 return
             else:
-                print('[*]强制破解(SSID:%S)' % ssid)
+                print('[*]强制破解(SSID:%s)' % ssid)
             break
 
     print('[+]导入密码本')
