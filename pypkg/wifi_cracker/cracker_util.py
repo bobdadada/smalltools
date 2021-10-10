@@ -62,7 +62,10 @@ def try_connect(iface, profile):
         if iface.status() != const.IFACE_CONNECTED:
 
             # 清理network_profiles
-            iface.remove_network_profile(profile)
+            network_profiles = iface.network_profiles()
+            for network_profile in network_profiles:
+                if all(getattr(profile, attr) == getattr(profile, attr) for attr in ('ssid', 'key')):
+                    iface.remove_network_profile(network_profile)
 
             return False
         else:
