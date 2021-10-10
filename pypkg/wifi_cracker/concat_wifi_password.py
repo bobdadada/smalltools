@@ -13,7 +13,7 @@ def main(*filenames, cfilename='concat_password.txt'):
             with open(filename, 'r', encoding='utf-8') as f:
                 for l in f:
                     l = l.strip('\n')
-                    if len(l) >= 8:
+                    if (len(l) >= 8) and (len(l) <= 16):
                         yield l
             print('[*]导入密码本%s成功' % filename)
 

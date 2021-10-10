@@ -19,7 +19,7 @@ def main(filename):
     with open(filename, 'r', encoding='utf-8') as f:
         for l in f:
             l = l.strip('\n')
-            if len(l) >= 8:
+            if (len(l) >= 8) and (len(l) <= 16):
                 lines.append(l)
 
     with open(filename, 'w', encoding='utf-8') as f:
