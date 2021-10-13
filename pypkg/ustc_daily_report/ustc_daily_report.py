@@ -174,7 +174,7 @@ def main(username, password, sleep=True, start_delaym=2, interval_delaym=1, emai
             i = html_report.text.find('上次上报时间')
             if i >= 0:
                 past_date = re.match(
-                    '(.*)'+date_reg, html_login.text[i:]).group(2)
+                    '(.*)'+date_reg, html_report.text[i:]).group(2)
                 if datetime.now().date() == datetime.strptime(past_date, '%Y-%m-%d').date():
                     print('[-]上报成功')
             else:
