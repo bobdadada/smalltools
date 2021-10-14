@@ -28,12 +28,12 @@ def main(ssid, iface_name=None):
                 print('[-]不存在名称为%s的无线网卡' % (iface_name))
                 return
 
-    print('[+]开始清理(SSID:%S)的热点' % ssid)
+    print('[+]开始清理(SSID:%s)的热点' % ssid)
     network_profiles = iface.network_profiles()
     for network_profile in network_profiles:
         if ssid == network_profile.ssid:
             iface.remove_network_profile(network_profile)
-    print('[-]清理(SSID:%S)的热点完成' % ssid)
+    print('[-]清理(SSID:%s)的热点完成' % ssid)
 
 
 def __main__():
