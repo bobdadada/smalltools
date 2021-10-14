@@ -9,7 +9,7 @@ from tqdm import tqdm
 from cracker_util import get_aps, try_connect, classify_aps, sample_passwords
 
 
-def main(password_file, count=5, iface_name=None, result_file='results.txt', stype=1):
+def main(password_file, count=5, iface_name=None, result_file='results.txt', stype=1, progressbar=False):
     if not os.path.isfile(password_file):
         print('[!]密码本文件不存在')
         return
@@ -64,7 +64,13 @@ def main(password_file, count=5, iface_name=None, result_file='results.txt', sty
 
         profile.cipher = const.CIPHER_TYPE_CCMP  # 加密单元 /cipher - AP的密码类型
 
-        for key in tqdm(sample_passwords(passwords, stype), desc='Passwords'):
+        if progressbar:
+            key_iterator = tqdm(sample_passwords(
+                passwords, stype), desc='Passwords')
+        else:
+            key_iterator = sample_passwords(passwords, stype)
+
+        for key in key_iterator:
             profile.key = key
             if try_connect(iface, profile):
                 cracked_table[profile.ssid] = key
@@ -94,10 +100,12 @@ def __main__():
                         default='results.txt', help='保存所有热点密码结果文件，默认为results.txt')
     parser.add_argument('-s', '--stype', type=int, default=1,
                         help=sample_passwords.__doc__+'，默认为1')
+    parser.add_argument('--progressbar', action='store_true',
+                        help='展示需要较长时间运行的任务的进度条')
     args = parser.parse_args()
 
     main(args.password_file, args.count, iface_name=args.iface_name,
-         result_file=args.result_file, stype=args.stype)
+         result_file=args.result_file, stype=args.stype, progressbar=args.progressbar)
 
 
 if __name__ == '__main__':
