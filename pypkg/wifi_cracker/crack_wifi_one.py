@@ -63,11 +63,14 @@ def main(password_file, ssid, force=False, iface_name=None, result_file='results
 
     profile.cipher = const.CIPHER_TYPE_CCMP  # 加密单元 /cipher - AP的密码类型
 
+    passwords_guess = sample_passwords(passwords, stype)
+
+    print('[ ]所用的密码总数为%s' % (len(passwords_guess)))
+
     if progressbar:
-        key_iterator = tqdm(sample_passwords(
-            passwords, stype), desc='Passwords')
+        key_iterator = tqdm(passwords_guess, desc='Passwords')
     else:
-        key_iterator = sample_passwords(passwords, stype)
+        key_iterator = passwords_guess
 
     for key in key_iterator:
         profile.key = key
