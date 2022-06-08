@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 import sys
-import re
 from datetime import datetime
 import time
 import random
@@ -12,21 +11,13 @@ import requests
 from bs4 import BeautifulSoup
 
 from bxypyutils.email_tools import notify_self
-from bxypyutils.regexp import date as date_reg
 
 VERSION = '1.0'
 
 REPORT_TEMPLATE = {
-    "now_address": "1",  # 内地
-    "gps_now_address": "",
-    "now_province": "340000",  # 安徽省
-    "gps_province": "",
-    "now_city": "340100",  # 合肥市
-    "gps_city": "",
-    "now_country": "340111",  # 包河区
-    "gps_country": "",
-    "now_detail": "",
-    "is_inschool": "2",  # 在校（东区）
+    "juzhudi": "",
+    "city_area": "",
+    "jutiwz": "",
     "body_condition": "1",  # 正常
     "body_condition_detail": "",
     "now_status": "1",  # 正常在校园中
@@ -83,18 +74,6 @@ def main(username, password, sleep=True, start_delaym=2, interval_delaym=1, emai
             raise Exception('[!]登录失败')
         print('[-]登录成功')
 
-        # 获取上次上报的时间，防止重复上报
-        try:
-            i = html_login.text.find('上次上报时间')
-            if i >= 0:
-                past_date = re.match(
-                    '(.*)'+date_reg, html_login.text[i:]).group(2)
-                if datetime.now().date() == datetime.strptime(past_date, '%Y-%m-%d').date():
-                    print('[*]今天已经做过每日健康上报!')
-                    return
-        except:
-            pass
-
         if sleep:
             time.sleep(random.random()*interval_delaym*60)
 
@@ -133,19 +112,20 @@ def main(username, password, sleep=True, start_delaym=2, interval_delaym=1, emai
 
         print('[+]从网站上更新部分个人报告信息')
         try:
+
             # 获取当前所在地的地址信息
-            for key in ('now_province', 'now_city', 'now_country'):
+            for key in ('juzhudi', 'jutiwz'):
                 data.update({key: html_login.findChild(
-                    'input', {'id': key+'_hidden'}).attrs['value']})
+                    'input', {'name': key}).attrs['value']})
+            for key in ('city_area',):
+                for e in html_login.findChild('select', {'name': key}).findChildren('option'):
+                    if 'selected' in e.attrs:
+                        data.update({key: e.attrs['value']})
 
             # 获取当前状态（正常在校园内，正常在家，...），是否在校园内等
             for key in ('now_status',):
                 for e in html_login.findChild('select', {'name': key}).findChildren('option'):
                     if 'selected' in e.attrs:
-                        data.update({key: e.attrs['value']})
-            for key in ("is_inschool",):
-                for e in html_login.findChild('input', {'name': key}):
-                    if 'checked' in e.attrs:
                         data.update({key: e.attrs['value']})
 
             for key in ("has_fever", "last_touch_sars", "is_danger", "is_goto_danger"):
@@ -157,6 +137,7 @@ def main(username, password, sleep=True, start_delaym=2, interval_delaym=1, emai
             for key in ("jinji_lxr", "jinji_guanxi", "jiji_mobile"):
                 data.update({key: html_login.findChild(
                     'input', {'type': 'text', 'name': key}).attrs['value']})
+
         except:
             raise Exception('[!]无法从网站上更新部分个人报告信息')
         print('[-]更新部分个人报告信息成功')
@@ -169,14 +150,11 @@ def main(username, password, sleep=True, start_delaym=2, interval_delaym=1, emai
         try:
             r_report.raise_for_status()
 
-            # 获取时间
+            # 是否上报成功
             html_report = BeautifulSoup(r_report.text, features='html.parser')
-            i = html_report.text.find('上次上报时间')
+            i = html_report.text.find('上报成功')
             if i >= 0:
-                past_date = re.match(
-                    '(.*)'+date_reg, html_report.text[i:]).group(2)
-                if datetime.now().date() == datetime.strptime(past_date, '%Y-%m-%d').date():
-                    print('[-]上报成功')
+                print('[-]上报成功')
             else:
                 raise Exception('[!]上报失败')
         except:
