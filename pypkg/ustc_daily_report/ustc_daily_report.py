@@ -6,13 +6,15 @@ import time
 import random
 import urllib
 import pprint
+import traceback
+
 
 import requests
 from bs4 import BeautifulSoup
 
 from bxypyutils.email_tools import notify_self
 
-VERSION = '1.0'
+VERSION = '1.1'
 
 REPORT_TEMPLATE = {
     "juzhudi": "",
@@ -20,8 +22,6 @@ REPORT_TEMPLATE = {
     "jutiwz": "",
     "body_condition": "1",  # 正常
     "body_condition_detail": "",
-    "now_status": "1",  # 正常在校园中
-    "now_status_detail": "",
     "has_fever": "0",  # 不发热
     "last_touch_sars": "0",  # 没接触过感染者
     "last_touch_sars_date": "",
@@ -122,12 +122,6 @@ def main(username, password, sleep=True, start_delaym=2, interval_delaym=1, emai
                     if 'selected' in e.attrs:
                         data.update({key: e.attrs['value']})
 
-            # 获取当前状态（正常在校园内，正常在家，...），是否在校园内等
-            for key in ('now_status',):
-                for e in html_login.findChild('select', {'name': key}).findChildren('option'):
-                    if 'selected' in e.attrs:
-                        data.update({key: e.attrs['value']})
-
             for key in ("has_fever", "last_touch_sars", "is_danger", "is_goto_danger"):
                 for e in html_login.findChild('input', {'name': key}):
                     if 'checked' in e.attrs:
@@ -180,6 +174,12 @@ def __main__():
     parser = argparse.ArgumentParser(
         description='中科大每日健康上报软件（版本号：%s）' % VERSION)
 
+    parser.add_argument('-v', '--version', action='store_true', help='版本号')
+    for v in ('-v', '--version'):
+        if v in sys.argv[1:]:
+            print("版本号: %s"%VERSION)
+            sys.exit(0)
+
     parser.add_argument('username', type=str, help='学号')
     parser.add_argument('password', type=str, help='密码')
     parser.add_argument('-s', '--sleep', action='store_true', help='是否使用软件延迟')
@@ -196,12 +196,10 @@ def __main__():
         main(username=args.username, password=args.password, sleep=args.sleep, start_delaym=args.sdelay,
              interval_delaym=args.idelay, email=args.email)
     except Exception as e:
-        print(e)
-        raise
-    finally:
-        print("\n程序运行完成，10s后自动关闭\n")
-        time.sleep(10)
-
+        sys.exit(traceback.format_exc())
+    
+    print("\n程序运行完成，10s后自动关闭\n")
+    time.sleep(10)
     sys.exit(0)
 
 
