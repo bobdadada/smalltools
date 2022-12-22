@@ -20,14 +20,10 @@ REPORT_TEMPLATE = {
     "juzhudi": "",
     "city_area": "",
     "jutiwz": "",
-    "body_condition": "1",  # 正常
+    "q_0": "良好",  # 相当于以前的body_condition
     "body_condition_detail": "",
-    "has_fever": "0",  # 不发热
-    "last_touch_sars": "0",  # 没接触过感染者
-    "last_touch_sars_date": "",
-    "last_touch_sars_detail": "",
-    "is_danger": "0",  # 当前居住地是否为疫情中高风险地区
-    "is_goto_danger": "0",  # 14天内是否有疫情中高风险地区旅居史
+    "q_2": "",
+    "q_3": "",
     "jinji_lxr": "",  # 紧急联系人
     "jinji_guanxi": "",  # 与本人关系
     "jiji_mobile": "",  # 联系人电话，此处原网站代码有问题，应为jinji_mobile更加合理
@@ -78,14 +74,14 @@ def main(username, password, sleep=True, start_delaym=2, interval_delaym=1, emai
             time.sleep(random.random()*interval_delaym*60)
 
         # 获取网上的当前健康状况，并进行评估
-        body_condition = '1'  # 正常
+        q_0 = '良好'
         try:
-            for e in html_login.findChild('select', {'name': 'body_condition'}).findChildren('option'):
+            for e in html_login.findChild('select', {'name': 'q_0'}).findChildren('option'):
                 if 'selected' in e.attrs:
-                    body_condition = e.attrs['value']
+                    q_0 = e.attrs['value']
         except:
             pass
-        if body_condition != '1':
+        if q_0 != '良好':
             print('[*]健康状况不正常，请手动上报')
             return
 
@@ -120,11 +116,6 @@ def main(username, password, sleep=True, start_delaym=2, interval_delaym=1, emai
             for key in ('city_area',):
                 for e in html_login.findChild('select', {'name': key}).findChildren('option'):
                     if 'selected' in e.attrs:
-                        data.update({key: e.attrs['value']})
-
-            for key in ("has_fever", "last_touch_sars", "is_danger", "is_goto_danger"):
-                for e in html_login.findChild('input', {'name': key}):
-                    if 'checked' in e.attrs:
                         data.update({key: e.attrs['value']})
 
             # 从网上获取家庭紧急联系人信息
